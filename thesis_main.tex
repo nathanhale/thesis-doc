@@ -1,0 +1,80 @@
+%\documentclass[12pt]{ociamthesis}  % default square logo 
+\documentclass[12pt,beltcrest]{ociamthesis} % use old belt crest logo
+%\documentclass[12pt,shieldcrest]{ociamthesis} % use older shield crest logo
+
+%load any additional packages
+\usepackage[all]{xy}
+\usepackage[linesnumbered,lined,ruled]{algorithm2e}
+\usepackage[font=sf, labelfont={sf,bf}, margin=1cm]{caption}
+\usepackage{subcaption}
+\usepackage{sectsty}
+\allsectionsfont{\sffamily}
+
+\title{Content and User Recommendation In Social Networks}
+\author{Nathan Hale}
+\college{Exeter College}
+
+%\renewcommand{\submittedtext}{change the default text here if needed}
+\degree{Master of Science}
+\degreedate{Summer 2012}
+
+%end the preamble and start the document
+\begin{document}
+
+%\nocite{*}
+
+%this baselineskip gives sufficient line spacing for an examiner to easily
+%markup the thesis with comments
+\baselineskip=18pt plus1pt
+
+%set the number of sectioning levels that get number and appear in the contents
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{4}
+
+
+\maketitle                  % create a title page from the preamble info
+%\include{dedication}        % include a dedication.tex file
+%\include{acknowlegements}   % include an acknowledgements.tex file
+\include{abstract}
+
+
+\begin{romanpages}          % start roman page numbering
+\tableofcontents            % generate and include a table of contents
+\listoffigures              % generate and include a list of figures
+\end{romanpages}            % end roman page numbering
+
+%now include the files of latex for each of the chapters etc
+
+%Introduction
+\include{chapter1}
+
+% an explanation of the problem: a second chapter should explain the problem 
+%to be studied, or the context in which the work takes place
+\include{chapter2}
+
+%3 -- Method
+\include{chapter3}
+
+%4 -- Implementation
+\include{chapter4}
+
+% Results
+\include{chapter5}
+
+%5 -- Conclusions that can be drawn
+\include{chapter6}
+
+%now enable appendix numbering format and include any appendices
+\appendix
+%\include{appendix1}
+%\include{appendix2}
+
+%next line adds the Bibliography to the contents page
+%\addcontentsline{toc}{chapter}{Bibliography}
+%uncomment next line to change bibliography name to references
+%\renewcommand{\bibname}{References}
+\bibliography{bibliography}        %use bibliography.bib
+\bibliographystyle{plain}  %use the plain bibliography style
+
+\end{document}
+

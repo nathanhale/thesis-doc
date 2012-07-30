@@ -1,0 +1,108 @@
+\chapter{Results}
+
+Having detailed both the method used for recommendation and the actual implementation of that method, the discussion now moves to the method for evaluating the results and the presentation of the results themselves in order to demonstrate the efficacy of the method.
+
+First the method of evaluating the results is described; for such a large dataset this is a challenging question, and it is not yet well-defined for this research area. The selection of the distinguished users is then described and their effect on the evaluation methods is considered before arriving at several metrics for evaluating the results.
+
+Next the baseline results are shown using the established metrics. Finally, variations on the algorithm are experimented with and their results presented in order to establish which parameters and edge types are the most valuable for this task and whether the algorithm can be improved over its baseline result.
+
+
+\section{Evaluation Methodology}
+
+\subsection{Challenges}
+
+A review of the existing research on content recommendation discussed in Section~\ref{sec:ContentRecommendationResearch}, reveals no consensus on how best to evaluate the results of a recommendation method. This is due primarily to two separate but related issues: the lack of a common dataset and the lack of ground truth judgements on the relevance of either content or users.
+
+None of the research projects on Twitter content recommendation reviewed in Section~\ref{sec:ContentRecommendationResearch} used the same set of Twitter data for their experiments. All of the researchers used the Twitter API to download their own datasets of varying sizes and using various procedures. Because of this the datasets turn out to be very different in terms of size, user composition, and tweet content, which makes results difficult to compare between papers. The creation of the microblog track of the Text Retrieval Conference (TREC) was accompanied by a very large collection of tweet data which may be commonly used in the future, but as discussed in Section~\ref{sec:SelectingADataset}, it was not sufficient for this project.
+
+The bigger issue, however, is the lack of a set of ground truth judgements of the relevance of tweets and users in any dataset. One obvious cause of this is the lack of a canonical dataset upon which recommendations are made. Perhaps if ground truth judgements were available such a dataset would come into common usage, but the fact is that the job is too complex to realistically be performed reliably for any decent sample size. The content and users that are relevant for one user would be vastly different from the content and users relevant for another. And any database of a usable size would have millions and millions of tweets and users, far too many for all of them to be judged for even one user.
+
+\subsection{Distinguished User Selection}
+
+With these challenges in mind, it was necessary to develop methods of evaluating the performance of the algorithm that did not rely on a pre-judged set of relevant content and users. The first step was to choose distinguished users to whom the content should be recommended. For privacy reasons, those users are not named here. Overall, three users were chosen.
+
+Two users were chosen because they are known personally by the author and are long-time users who are present in the dataset. These facts made them ideal candidates for the user studies discussed in Section~\ref{sec:UserStudy}. Both of these users are computer scientists, so technology is a major interest, but there are some distinguishing interests as well. These two users will be known as users $K_{i}$ and $K_{j}$, with the choice of K meant to indicate that they are the users {\bf K}nown to the author.
+
+%TODO: ask ki and kj when they started using Twitter. ki has 43 followers here and kj has 105, compared to 459 and 495 today.
+
+The other user was chosen because his interests are clear and easy to distinguish and because he was well connected to the small sample of tweets that were used during initial implementation. This user has more than 7,000 followers as of this writing, up from approximately 3,700 three years ago when the dataset was collected. As of this writing he has published nearly 25,000 tweets. His interests are also in technology, but with a business focus. A large number of his current followees are technology entrepreneurs, but he also posts tweets and has followees related to popular culture such as films, television, and music. This user will be known as user $U$, indicating that he is {\bf U}nknown to the author.
+
+
+\subsection{User Study}
+\label{sec:UserStudy}
+
+The goal of the user study is primarily to determine whether the content recommended to the users was of interest to the distinguished user.
+
+A user study is perhaps the closest method of evaluation to a set of ground truth relevance judgements, though on a smaller scale. For the tweets ranked by the users it is possible to say with certainty how relevant they are and thus to evaluate the precision and recall of the algorithm. The user study could obviously only be performed on the users known to the author, which was part of what motivated the choice of known users as distinguished users.
+
+One major drawback of the user study is that it recommends content to these users based on what was happening three years ago. Thus, the recommendations are based on the interests of three years ago which may no longer be relevant. Before filling out the user survey these users were asked to put themselves in the frame of reference of what might have been interesting to them three years ago, but this is obviously inexact, so the efficacy of user study depends largely on the idea that interests change slowly.
+
+The user studies consisted of two components: recommending users and recommending individual tweets. 
+
+%TODO: may ignore the user rec component of this, depending on how useful the comparison to the current network is. 
+
+For recommending individual tweets, the top one hundred tweets, retrieved as described in Section~\ref{sec:RetrievingResults}, were retrieved after the algorithm was run. These tweets were then presented to the user in a random order and each user was asked to rank each of the one hundred tweets from 1 to 5 using the values from Table~\ref{tab:UserRankingScores}. From these scores, the recall@rank and precision were evaluated by considering tweets scored as either 4 or 5 to be relevant tweets.
+
+%TODO: if this stays, probably need to get a table for it
+
+Recommending users proceeded in a largely similar manner. For each recommended user their Twitter profile and ten most recent tweets were retrieved from Twitter and presented to the user in random order. The users under study were then asked to rank the recommended users on the same scale as for individual tweets, with the results being used in the same way to determine recall@rank and precision scores by considering scored as either 4 or 5 to be relevant users.
+
+
+%TODO: Will need something about the variations explored lower down and how those were dealt with here.
+
+\begin{table}
+\centering
+\begin{tabular}{c|l}
+{\bf Score} & {\bf Description of tweets with this score} \\ \hline
+1 & Not relevant at all, e.g. non-english tweets \\ \hline
+2 & Useless tweets \\ \hline
+3 & Average tweet; not particularly useful, but not completely without value \\ \hline
+4 & Relevant or interesting tweet \\ \hline
+5 & Very relevant tweets \\
+\end{tabular}
+\caption{User ranking scores}
+\label{tab:UserRankingScores}
+\end{table}
+
+
+\subsection{Comparison to Current Tweets}
+
+The user study is effective for evaluating the results for the known users but is subject to biases and changes in interests and does nothing for evaluating the results for unknown or unavailable users. As such, it was also necessary to develop more automated techniques.
+
+One such technique is to assume that a user's interests remain static between the time period represented by the dataset and the present day. This makes it possible to compare the tweets recommended by the system to the tweets that the user is actually interested in while using a separate data source to avoid overfitting.
+
+As described by \cite{Welch2011} and mentioned elsewhere in this dissertation, retweets are the most effective means of determining which content a person is interested in. Thus, each tweet recommended by the system can be compared to a composite document consisting of the most recent retweets from the present day twitter stream of the user for whom the recommendations are being created. These numbers can be compared to a baseline created by comparing each tweet in the system to the reference document and taking an average of their similarity scores.
+
+For this project, the method of determining similarity was the cosine similarity metric as described in Section~\ref{sec:ContentScoringMethod}. Because of the large number of tweets in the database the baseline against which these numbers were compared was determined by taking the average of the similarity scores for ten thousand tweets rather than for the entire collection.
+%TODO: make sure this number is correct with what I actually do 
+
+This method can also be used to evaluate users, though the comparison is a bit less accurate. In this case, the most recent tweets from the recommended user are retrieved from Twitter and compared against the same reference document of retweets as used when evaluating tweets. The similarity of these can again be compared to a baseline by repeating this process for some number of users chosen at random. This requires far more requests to the Twitter API, however, making it subject to being rate limited, reducing the number of users who can be evaluated when generating the baseline.
+
+As with all of the means of evaluation, this is an imperfect measurement. Given their technical interests and the fast-paced nature of that field, many of the technologies that these users are interested in today may not have existed at the time the data was collected. Still, it does allow a comparison to show that the recommendations provided have value above random recommendation and because it is automated it allows far more documents to be ranked than the user study.
+
+\subsection{Comparison to Current Network State}
+
+Much of the research on link prediction in social networks focuses on predicting whether links will be created between users in the future, and the evaluation involves comparing the predicted links to those actually formed later. For this project, the only data available on the state of the social graph is that of the dataset and that of the present day.
+
+Thus, one evaluation method used was to compare the users recommended for each distinguished user to the set of actual followees of that person in the present social network. The number of recommended users likely to be in the set of present-day followees is extremely small given that most users follow a small set of people, but by comparing the number of users in the top twenty five recommended users who overlap with the present-day followee list to the probability of a random user appearing in that list it is possible to demonstrate that the recommendations have value.
+
+% 279 is the old number of followees, 430 is the new number for user U
+
+
+%\subsection{``Google Distance''}
+
+%For this project a metric known as the ``Google Distance" metric was created as another means of comparing the various results.
+
+
+\section{Results}
+
+\subsection{Baseline Results}
+
+\subsection{Experimental Variations}
+
+\subsubsection{Varying $\lambda$ Parameters}
+
+\subsubsection{Varying Edge Types}
+
+\subsubsection{Varying Edge Directionality}
+\label{sec:VaryingEdgeDirectionality}

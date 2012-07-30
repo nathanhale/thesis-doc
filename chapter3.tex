@@ -1,0 +1,243 @@
+\chapter{Methodology}
+
+This chapter describes the methodology used in this dissertation to recommend both content and users to a particular user referred to here as the \emph{distinguished user}. Items are recommended based on both the social network structure surrounding the distinguished user and on the actual content produced by the distinguished user and by others in the surrounding network.
+
+The various aspects of the method are intentionally described as generally as possible and without reference to any particular social network. This generality is important because while the experiments described in Chapter 4 and Chapter 5 are specific to Twitter, the methodology described here could just as easily be applied to Facebook, Google+, or many other social networks.
+
+\section{Simple Approach}
+
+The nature of a social network---a group of users connected to one another by various relationships---suggests that creating a graph is the best way to analyse the network. There are many algorithms suitable for the task of analysing such a graph and much research has gone into applying these algorithms to Twitter and other social networks. Additionally, research has been done to analyse the nature of social graphs to determine things such as the average degree of nodes (i.e. users) in the network and the average distance between nodes. This research was discussed at length in the previous chapter.
+
+\begin{figure}
+  \centering
+\begin{displaymath}
+  \xymatrix{
+    A \ar[dr] \ar[dd] &  \\
+      & B \ar[dl] \\
+    C \ar[ur] & }
+\end{displaymath} 
+  \caption[Simple graph of a social network]{A simple graph of a social network containing three users. User A follows user C, user A and user C both follow user B, and user B follows only user C. }
+\label{fig:simple_social_network_graph}
+\end{figure}
+
+The obvious approach to take is to build a graph where each user is a vertex and the relationships between those users are the edges, as in Figure~\ref{fig:simple_social_network_graph}. Thus, if user A follows user B then there will be a directed edge from vertex A to vertex B. When using the network-based approach for recommendation, this basic graph of the social network is often used, e.g. as in \cite{Hangal2010}. If it is desirable for the analysis to take the meaning of the content into account then this basic graph can be extended by creating edges between users who frequently discuss similar topics. This can be extended further by weighting the edges based on the strength of the relationship as determined by factors such as common activity as described in Section~\ref{sec:FbContentRec}. \cite{Hangal2010}, for example, augmented the basic social graph with additional links based on influence calculations.
+
+Once a weighted graph such as this has been constructed a number of different algorithms can be employed including random walks, as in \cite{Backstrom2011}, the PageRank algorithm, as in \cite{Weng2010}, or simply searching for the strongest links to users who are not already connected to the distinguished user.
+
+The obvious limitation to this simple approach is that it has no way of recommending particular pieces of content---the best it can hope to do is to select content from the top users using some similarity metric to compare that content to content that the user has already indicated interest in. Since the goal of this dissertation is to recommend both users and content this simple approach is clearly not sufficient.
+
+\section{Co-HITS}
+
+\subsection{Background and Suitability}
+\label{sec:CoHitsBackground}
+
+Deng et. al. \cite{Deng2009} developed an algorithm that they dubbed Co-HITS to use for ranking web queries and documents. The name of this algorithm is in reference to the famous HITS algorithm \cite{Kleinberg1999} for ranking websites. Co-HITS is similar to HITS, and in fact with particular values of the personalized parameters (see Section~\ref{sec:CoHitsParameters}) the algorithm reduces to the standard HITS algorithm. As with normal HITS, Co-HITS is an online algorithm, meaning that scores must be obtained for each unique query at query time rather than calculating the score once and then storing the results.
+
+Two major differences between Co-HITS and HITS are the introduction of an initial score and that Co-HITS is designed to operate on a bipartite graph. The initial score factor is particularly important because it makes it possible to include content information in the algorithm by initializing scores based on content similarity. Co-HITS also does away with the concept of differing scores for hubs and authorities, instead keeping only one score.
+
+The obvious objection to using this algorithm for recommending users and content is that the graph of a social network as in Figure~\ref{fig:simple_social_network_graph} isn't bipartite at all. However, the two classes described by \cite{Deng2009}, search queries and web documents, can be adapted to the task of content and user recommendation by reformulating the social network graph not with users as vertices and connections between users as edges, but with both users and content as vertices and with edges between user vertices and the vertices representing content produced by that user rather than between users.
+
+\begin{figure}
+  \centering
+\begin{displaymath}
+  \xymatrix{
+    A \ar@{<->}[r] \ar@{<->}[dr] & C_{A_{1}} \\
+      &  C_{A_{2}} \\
+    B \ar@{<->}[r] & C_{B} \\
+    C \ar@{<->}[r] & C_{C} }
+\end{displaymath} 
+  \caption[Simple bipartite graph of a social network]{This simple bipartite version of the graph of a social network shows how a social network can be made to be bipartite by incorporating generated content into the graph and creating edges between users and the content generated by those users. This also demonstrates that this process alone is not enough to provide a useful graph since this graph is very disconnected.}
+\label{fig:disconnected_bipartite_graph}
+\end{figure}
+
+This new formulation of the social graph is clearly bipartite, as demonstrated in Figure ~\ref{fig:disconnected_bipartite_graph}, making the Co-HITS algorithm applicable to it. Unfortunately it is also clearly a very disconnected graph since users are only connected to the content that they produce, leaving no connections to other users or other content. This is addressed in section~\ref{sec:ProjectingToBipartite}; for now it is enough that this graph is bipartite and thus that the Co-HITS algorithm can be applied to it.
+
+
+\subsection{Algorithm}
+\label{sec:CoHitsAlgorithm}
+
+This section contains a summary of the Co-HITS algorithm as described in \cite{Deng2009} but applied to the case of ranking users and content in social networks rather than ranking web queries. Some of the variable names have been changed from that paper's notation to make it more clear what the variables refer to in the context of social networks.
+
+Let the set of all content be called $T$ and each member of that set be called $t$. Similarly, let the set of all users be called $U$ and each member of that set be called $u$. Then let the probability of transitioning from a particular user $u_{i}$ to a particular piece of content $t_{j}$ be denoted as $w_{ij}^{ut}$ and the probability of transitioning from content $t_{j}$ to user $u_{i}$ be denoted as $w_{ji}^{tu}$. The initial score (discussed in section~\ref{sec:InitializationOfScores}) for a given user node and content node will be indicated as $u_{i}^{0}$ and $t_{k}^0$, respectively. In both cases the initial scores are normalised such that $\sum\limits_{k \in T} t_{k}^{0} = 1$ and $\sum\limits_{i \in U} u_{i}^{0} = 1$. Given these definitions, the generalized Co-HITS equations are given in \cite{Deng2009} as follows:
+
+\begin{center}
+\[u_{i} = (1 - \lambda_{u}) u_{i}^{0} + \lambda_{u}  \sum\limits_ {k \in T} w_{ki}^{tu} u_{k}\]
+\[t_{k} = (1 - \lambda_{t}) t_{k}^{0} + \lambda_{t}  \sum\limits_ {j \in U} w_{jk}^{ut} x_{j}\]
+\end{center}
+
+The paper goes on to describe further refinements under the assumption that only one set of vertices is desired to be scored. However, the goal for this project is to score both sets of vertices, so that refinement, consisting of substituting one equation into the other, will not be discussed. Note that the personalised parameters $\lambda_{t}$ and $\lambda_{u}$ will be discussed in Section~\ref{sec:CoHitsParameters}.
+
+From these general Co-HITS equations, \cite{Deng2009} describes two frameworks to arrive at final scores for each node in the graph, the iterative framework and the regularization framework. The approaches are similar to the multiple approaches to determining PageRank in that one involves iteration and propagation of scores while the other involves matrix operations and more intense computation.
+
+As the name implies, the iterative framework involves iteratively propagating the scores between the nodes using the above equations until achieving convergence. The paper states that their empirical results assert that convergence usually occurs within approximately ten iterations. Experiments done for this project and discussed in Chapter 4 indicate that this is accurate. The initial scores are normalised so that the scores for each set $T$ and $U$ sum to one. A convenient consequence of the above equations is that after each iteration of the algorithm the sums each of each set, $\sum\limits_{k \in T} t_{k}$ and $\sum\limits_{i \in U} u_{i}$, will still sum to one without need for an additional normalisation step.
+
+The regularization framework, meanwhile, involves transforming the transition probabilities into a transition matrix and using that matrix along with some other derived equations to solve for the final results directly. The final step of this calculation involves a matrix inversion. As described in the paper, this operation can be done efficiently provided that the matrix is sparse and small. That works well for the test case described in \cite{Deng2009}, because their graph is indeed very sparse as well as being quite small (only 50,000 entries). This method is not well suited for a social network after application of the projection procedure described in section~\ref{sec:ProjectingToBipartite} because this graph is quite dense and extremely large since millions of pieces of content are produced each day, making the calculation computationally much more difficult and this framework less tractable than the iterative framework.
+
+
+\subsection{Parameters}
+\label{sec:CoHitsParameters}
+
+The Co-HITS equations described above each include a so-called personalisation parameter $\lambda \in [0,1]$, which determines how much weight the initial score has on the final outcome. The closer a given $\lambda$ parameter is to 0, the more weight the initial score is given in calculating the score after each iteration.
+
+Setting both $\lambda$ parameters to 0 simply means that the final score will be equal to the initial score. Setting both $\lambda$ parameters to 1, meanwhile, makes the algorithm into something much more akin to the standard HITS algorithm---the scores of each vertex are determined entirely by the scores of the nodes transitioning into that vertex. If only one of the $\lambda$ values is set to 0 then the algorithm will converge after only one iteration once the scores of the corresponding set of the bipartite graph have been propagated across to the other set. Finally, \cite{Deng2009} indicates that if only one of the $\lambda$ values is set to 1 then the algorithm becomes something akin to the Personal Page Rank algorithm.
+
+Conceptually it makes sense to set the $\lambda$ parameters according to the confidence in the initial scores. If they are believed to be quite accurate for one or both sets of vertices in the bipartite graph then more weight should be placed on the initial score by moving the $\lambda$ value closer to 0. If, on the other hand, very little is known about the accuracy or values of the initial scores for a particular set of vertices then the $\lambda$ value should be closer to 1.
+
+For the particular data set used in \cite{Deng2009}, $\lambda$ values of 0.7 and 0.4 were found to have particularly good results. Chapter 4 of this dissertation has more information on the values that were found to have good results for the social networking dataset used here.
+
+\section{Projecting to a Bipartite Graph}
+\label{sec:ProjectingToBipartite}
+
+One of the key insights of this project was how to transform the social graph of a social network, which is very clearly not a bipartite graph, into a bipartite graph suitable for use with the Co-HITS algorithm or other algorithms specific to bipartite graphs such as \cite{Kunegis2010}. Section~\ref{sec:CoHitsBackground} has already described how a social network can be made into a simple bipartite graph by taking users and content as vertices and connecting users to the content which they produced.
+
+Unfortunately, this basic process leaves a very disconnected graph and discards all of the network information about which users are connected to which other users, which is a very important piece of information. It also ignores the connections between pieces of content, such as whether they are forwards of a particular piece of content and whether they discuss similar topics to other pieces of content.
+
+This information can be recovered by projecting the network connections between users so that they are represented by connections between user vertices and content vertices. If a user Alice is connected to a user named Bob and a user named Carol in the social graph (as in Figure ~\ref{fig:before_network_projection}), then this projection would connect content $C_{A}$ produced by Alice to both Bob and Carol in the output bipartite graph, Figure~\ref{fig:after_network_projection}. This process makes sense intuitively because it is clear that if Bob and Carol see this content---which they probably will, given their connection to Alice---then it is exerting some influence on them.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \begin{displaymath}
+    \xymatrix{
+    Alice \ar@{<->}[r]  & C_{A} \\
+    Bob \ar@{<->}[r] \ar@{-->}[u]    & C_{B} \\
+    Carol  \ar@{<->}[r] \ar@{-->}@/^2pc/[uu] & C_{C} }
+    \end{displaymath}
+    \caption{Before projection}
+    \label{fig:before_network_projection}
+
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \begin{displaymath}
+    \xymatrix{
+    Alice \ar@{<->}[r]  & C_{A} \\
+    Bob \ar@{<->}[r] \ar@{<->}[ur]    & C_{B} \\
+    Carol  \ar@{<->}[r] \ar@{<->}[uur] & C_{C} }
+    \end{displaymath}
+    \caption{After projection}
+    \label{fig:after_network_projection} 
+  \end{subfigure}
+  \caption[Projecting network connections into the bipartite graph]{ Demonstration of projecting network connections, indicated in (a) by the dashed lines, to make the graph bipartite and more connected. }
+  \label{fig:network_projection}
+\end{figure}
+
+Besides the obvious and explicit connections between users in a normal social network there are also implicit connections between the individual pieces of content that those users create. For example, in the case of Twitter, two tweets which include the same hashtag (e.g. \#Oxford) have an implicit connection, as in Figure~\ref{fig:before_content_projection}. The projection procedure can easily be extended to apply to content by connecting users who have produced content to all of the other pieces of content which are linked to their own. Thus if Bob mentioned \#Oxford in a piece of content, he would be connected to all other content in the graph which also mentioned \#Oxford, as indicated in Figure~\ref{fig:after_content_projection}.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \begin{displaymath}
+    \xymatrix{
+    Alice \ar@{<->}[r]  & C_{A}   \\
+    Bob \ar@{<->}[r]    & C_{B}   \\
+     & \\
+    Carol  \ar@{<->}[r] & C_{C} \ar@{<-->}[uu]|{\#Oxford}  }
+    \end{displaymath}
+    \caption{Before projection}
+    \label{fig:before_content_projection}
+
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \begin{displaymath}
+    \xymatrix{
+    Alice \ar@{<->}[r]  & C_{A}   \\
+    Bob \ar@{<->}[r]    & C_{B}  \ar@{<->}[dl] \\
+    Carol \ar@{<->}[r] & C_{C} \ar@{<->}[ul]  }
+    \end{displaymath}
+    \caption{After projection}
+    \label{fig:after_content_projection} 
+  \end{subfigure}
+  \caption[Projecting content connections into the bipartite graph]{ Demonstration of projecting connections between related pieces of content, indicated in (a) by the dashed lines, to increase the connectivity of the bipartite graph. }
+  \label{fig:content_projection}
+\end{figure}
+
+This projection also makes sense because if Alice creates a piece of content then she is likely to be interested in other content which is related to it. This process of projecting the content links isn't limited to just hashtags. Any two pieces of content determined to be similar could have their implicit links projected in the same way. That could mean that they both mention similar named entities, that it can be determined that they discuss the same topic, that they link to the same external web address, or any number of other means of determining the similarity of two pieces of content.
+
+A number of other projections can be made to add other features of the social network to the bipartite graph. For example, \cite{Welch2011} reveals that in Twitter retweets are one of the most important indicators of what is interesting to a user. Retweets---or more generally, re-shares of the content of others---can be included in the bipartite graph in a number of ways such as by strengthening the weight of edges connecting the sharer to the content of the original author, by connecting the content produced by the original content author's connections to the sharer, or by connecting the content produced by the original content author to the connections of the sharer.
+
+Projecting out the links between users and the links between content makes the bipartite graph much more connected and also models the real-world influence that particular network characteristics exert. Depending on the test being run, some or all of these edges may be directed rather than undirected and they may be weighted or not. Some analysis of those design decisions is presented in Chapter 4.
+
+
+\section{Method for Initializing Scores}
+\label{sec:InitializationOfScores}
+
+A key factor in the accuracy of the final scores when using the Co-HITS algorithm is the initial scores provided for each set of vertices. How much of an effect the initial scores have is dependent on the $\lambda$ parameters, but unless both are set to 1 the initial scores will still have a major impact on the final results. It is therefore quite important to choose a good method for determining those initial scores. In the absence of any known metric for determining the scores it is necessary to set the initial scores for a particular set to a uniform value, which indicates that all of them are equally likely to be relevant at the outset.
+
+Fortunately, in social networks, it is possible to make some very accurate initial determinations about content and users which may be relevant.
+
+\subsection{User Scores}
+\label{sec:InitializationOfUserScores}
+
+Much work has been done on the so-called link prediction problem which seeks to predict which links will be created between users in a social network, i.e. which other users are most relevant to a given user. \cite{LibenNowell2007}, \cite{Kunegis2010}, and \cite{Backstrom2011} are all examples of studies that have been done on this subject.
+
+Because this process of determining original scores is only the initial step in the recommendations, for this project it makes sense to choose a method which is as fast as possible while still maintaining a high degree of accuracy. \cite{LibenNowell2007} studies a number of different methods of link-prediction, ranging from very fast and easy to calculate to very complex calculations. Fortunately, one of the most accurate methods is also one of the easiest to calculate, which is the method of Adamic and Adar from \cite{Adamic2003}.
+
+If $\Gamma (x)$ is defined as the set of all connections (neighbours) of vertex $x$, then the similarity score for two users x and y is given as: 
+
+\begin{center}
+\[
+\sum\nolimits_{z \in \Gamma (x) \cap \Gamma (y)} \frac{1}{\log |\Gamma (z) |}
+\]
+\end{center}
+
+The initial score for all of the user vertices in the bipartite graph can be computed by iterating through all of the users and comparing them to the distinguished user with this metric. This function handily penalizes the effect that more popular users have on the scores by virtue of appearing more frequently while weighting less popular users more highly.
+
+Depending on which particular social network is being examined, it may make sense to use slightly different versions of the $\Gamma$ function. For example, in Facebook it might make sense to consider only the neighbourhood of close connections, while in Twitter it might make sense to find the intersection of the followees of the distinguished user and the followers of the user being scored rather than the intersection of the followers of both.
+
+Both the simple common neighbours function, given by:
+\begin{center}
+$| \Gamma (x) \cap \Gamma (y) |$
+\end{center}
+
+\noindent
+and the Jacard Coefficient, given by:
+
+\begin{center}
+\[
+\frac{| \Gamma (x) \cap \Gamma (y) |}{| \Gamma (x) \cup \Gamma (y) |}
+\]
+\end{center}
+
+\noindent
+were found by \cite{LibenNowell2007} to present good results as well and could be used in cases where a more lightweight function is desired.
+
+\subsection{Content Scores}
+\label{sec:ContentScoringMethod}
+
+Much research has also been done on comparing the similarity of content, usually in the form of document similarity. Such algorithms can be a straightforward comparison of the number of words which overlap in the two pieces of content or they can be much more complex and use ontologies or other methods of deriving semantic meaning to compare the two pieces of content.
+
+As with the initial user scores, it is desirable that the initial content scores be fast and easy to compute. A natural choice is the cosine similarity metric, which is both very common and very easy to compute. This metric requires that the pieces of content (referred to as documents in the remainder of this section) be represented as vectors in the standard term frequency--inverse document frequency (tf-idf) form.
+
+In this form, the documents are represented as vectors where each dimension corresponds to a different term that appears somewhere in one of the documents in the collection. The value of each dimension is the tf-idf value. In its most common form, the tf-idf value for a given term is computed as:
+
+\begin{center}
+\[
+tf(t) \times idf(t) = |t| \times \log(\frac{|D|}{df(t)})
+\]
+\end{center}
+\noindent
+where $tf(t)$ is the frequency of term $t$ within the document in question (represented above by $|t|$), and $idf(t)$ is the inverse document frequency for that term, which is found by dividing the number of documents in the collection (represented above as $|D|$) by the number of documents in the collection which containing term $t$ (represented as $df(t)$). The denominator of the idf function can lead to a division by zero if a term does not appear in the collection, so either that needs to be detected and the corresponding tf-idf value set to zero or each df(t) values should be incremented by one.
+
+Once tf-idf vectors have been created for both of the documents $\hat{a}$ and $\hat{b}$ being scored, the cosine similarity metric itself can be computed as:
+
+\begin{center}
+\[
+\frac{\hat{a} \cdot \hat{b}}
+        {|\hat{a}| |\hat{b}|} 
+=
+\frac{ \sum\nolimits_{i} a_{i} b_{i} }
+       { \sqrt{\sum\nolimits_{i} (a_{i})^{2} } \sqrt{\sum\nolimits_{i} (b_{i})^{2}} }
+\]
+\end{center}
+
+This equation for the similarity between two vectors lies in the range $[-1,1]$ in the general case. However for document vectors the individual terms can never be negative and so the range of the similarity lies in the range $[0,1]$.
+
+For actually computing the initial scores of the bipartite graph it is necessary only to iterate through all of the pieces of content and compare each one to a reference document using the cosine similarity metric. The only remaining question, then, is the choice of the reference document which best indicates which documents will be relevant. Based on \cite{Welch2011}, the best option would likely be the set of content which the distinguished user has re-shared, since that is the best indicator of the type of content that user would like to see. If that set is empty, then some secondary choices might be the set of all documents produced by connections of the distinguished user or the set of all documents produced by the distinguished user.
+
+While the scores produced by this method are not as accurate as the methods for initialising user scores discussed in Section~\ref{sec:InitializationOfUserScores}, the resulting scores are still quite reasonable and the scoring process is very fast. Plus, tf-idf scoring and cosine similarity are very widely used methods and are supported by a wide range of tools and libraries. The fact that the initial scores produced for the content are not quite as accurate as those for users can be dealt with by simply moving the value of the $\lambda_{t}$ parameter closer to 1, dampening the impact of the initial score.
