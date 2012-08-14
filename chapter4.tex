@@ -73,11 +73,11 @@ count & INT & The number of followers of the user in the username column for thi
 A hash index was created on the username column of the followercount table to allow for quickly looking up the number of followers that a user has.
 
 %TODO: check how much time 500k tweets represents!
-The tweets themselves were not all used in any given run of the algorithm, and in fact only a tiny portion of them were used. One guideline for the project was that the recommendations themselves be only for a particular time period on the order of one to two weeks in order to reflect fleeting interests and recommend things that are of interest to the user at that time. For example, during the Olympics someone may be very interested in tweets about the Olympics, but they would probably not be so interested a few weeks after the Olympics have ended. For this project one million tweets were indexed when the algorithm was initialized, corresponding to about 1 week's worth of the data. Considering that the full dataset contains nearly half a billion tweets, this is a very small portion.
+The tweets themselves were not all used in any given run of the algorithm, and in fact only a tiny portion of them were used. One guideline for the project was that the recommendations themselves be only for a particular time period on the order of one to two weeks in order to reflect fleeting interests and recommend things that are of interest to the user at that time. For example, during the Olympics someone may be very interested in tweets about the Olympics, but they would probably not be so interested a few weeks after the Olympics have ended. For this project 500,000 tweets were indexed when the algorithm was initialized, corresponding to about \_\_\_\_\_'s worth of the data. Considering that the full dataset contains nearly half a billion tweets, this is a very small portion.
 
 It was useful to store this small portion of tweets in two different ways for two different purposes. For purposes of initializing the tweet scores (again, cf. Section~\ref{sec:InitializingScores}) it was very useful to index the tweets in a Lucene index because such indices automatically count the frequency of each term in each document and in the document collection as a whole, making tf-idf cosine similarity scoring easy.
 
-At the same time, it was also valuable to be able to write SQL statements to quickly select particular tweets and to update their Co-HITS scores quickly, a task much better accomplished via a relational database such as PostgreSQL. This storage of the tweets represented the tweet vertices in the graph, and thus information was included about the Co-HITS score and the original Co-HITS score for each of these nodes. The schema for the \texttt{tweet\_vertices} table is shown in Table~\ref{tab:tweetverticesSchema}. This table was indexed on the tweetid field using a btree index. After the initial index was built, an operation which only needed to happen one time for the series of tweets under investigation, the index was clustered.
+At the same time, it was also valuable to be able to write SQL statements to quickly select particular tweets and to update their Co-HITS scores quickly, a task much better accomplished via a relational database such as PostgreSQL. This storage of the tweets represented the tweet vertices in the graph, and thus information was included about the Co-HITS score and the original Co-HITS score for each of these nodes. The schema for the \texttt{tweet\_vertices} table is shown in Table~\ref{tab:tweetverticesSchema}. This table was indexed on the tweetid field using a btree index. After the initial index was built, an operation which only needed to happen one time for the series of tweets under investigation, the index was clustered. During the creation of the edges this table was clustered on the names, since that was how most of the edges where created---by joining user vertices with their tweets. Once this was completed, the tweets were clustered by their tweetids for actually running the algorithm.
 
 \begin{table}
 \centering
@@ -126,7 +126,7 @@ UPDATE tweet_vertices
 \noindent
 And if the algorithm needed to be reset so that it could be run again, it was a simple matter of copying over the original\_score field to the score field. In the actual implementation, three additional columns were present in the two vertex tables, one for each of the distinguished users. These columns stored the original scores for each of the users and made it possible to calculate this value only once for each user, facilitating faster testing.
 
-The final component that was stored in the PostgreSQL database was the list of edges between the two different classes of vertices. The schema of the \texttt{edges} table is shown in Table~\ref{tab:edgesSchema} and is quite basic. The name of the user and the id of the tweet that are connected is shown, along with the type of the edge. The directionality (if any) of that edge is indicated purely by its type, but by default all edges were treated as non-directed. Experimentation with making edges of particular types directed is addressed in Section~\ref{sec:VaryingEdgeDirectionality}.
+The final component that was stored in the PostgreSQL database was the list of edges between the two different classes of vertices. The schema of the \texttt{edges} table is shown in Table~\ref{tab:edgesSchema} and is quite basic. The name of the user and the id of the tweet that are connected is shown, along with the type of the edge. The directionality (if any) of that edge is indicated purely by its type. Experimentation with making edges of particular types directed in particular ways is addressed in Section~\ref{sec:VaryingEdgeDirectionality}.
 
 
 \begin{table}
@@ -141,51 +141,50 @@ type & INTEGER & The type of edge that this represents (see Table~\ref{tab:EdgeT
 \label{tab:edgesSchema}
 \end{table}
 
+As with the \texttt{namenetwork} table, different clusterings were useful for different purposes. For purposes of running the actual algorithm, it was necessary to sometimes order the edges by username and sometimes by tweetid. The edges table was clustered around the username column, so when retrieving the edges in order of tweetid, the query took far more time: two orders of magnitude more, in fact. Thus a copy of the edges table called \texttt{edges\_tweetids} was created for this purpose, this one clustered around the tweetids, allowing both queries to be much faster.
+
 \section{Building the Graph}
 \label{sec:BuildingTheGraph}
-
+%TODO: rewrite this if this code is refactored
 Building the graph is a very important part of the process. This was taken care of in the GraphManager class (cf. Appendix~\ref{app:code}), and in particular in the \texttt{createGraph()} method and the other methods called from there. First the users and tweets are selected and indexed and then all the appropriate edges between the two sides of the bipartite graph are created.
 
 \subsection{Selecting Users and Tweets}
 
 How to build the graph itself is not as simple a question as it would seem to be at first. Which users should be present in the graph? Which tweets should be present? How the graph is created and the decisions about which nodes are present dictates how connected the graph will be and thus how the scores from each set of vertices will interact with one another. Having users who are not connected to the rest of graph serves no purpose because no information about their suitability can be gained.
 
-Tweets were added by opening one of the files containing tweet data and parsing until the appropriate number of tweets had been indexed. Certain tweets in the data were invalid and were thrown out. The tweet ids were created by beginning at 1 and then incrementing for each tweet that was added to the database (i.e. each valid tweet). Proceeding in this manner ensured that the tweets were from the same time period and had a unique identifier.
+Tweets were added by opening one of the files containing tweet data and parsing until the appropriate number of tweets had been indexed. Certain tweets in the data were invalid and were thrown out. The tweet ids were created by beginning at 1 and then incrementing for each tweet that was added to the database (i.e. each valid tweet). Proceeding in this manner ensured that the tweets were all from the same time period, all were valid, and all had a unique identifier.
 
 In order to ensure that the graph was maximally connected, only users who would have connections were added. Practically speaking, this meant that users were added as the tweets were placed into the tweet\_vertices database. All users who had authored a tweet were added, but so were all users who had been retweeted or mentioned. Because of the types of edges created, as described in Section~\ref{sec:EdgeCreation}, these users are guaranteed to at least be connected to one tweet and will likely be connected to several others.
-
-%TODO: fill in these numbers:
-The average degree of a user node and a tweet node can be taken by dividing the number of edges by the number of users and the number of tweets, respectively. For the set of tweet data used in this project, the first 500,000 tweets of the December data from the Stanford tweet dataset, there were \_\_\_ edges, \_\_\_ tweet vertices, and \_\_\_ user vertices, meaning that the average user was connected to \_\_ tweets and the average tweet was connected to \_\_ users.
 
 
 \subsection{Edge Creation}
 \label{sec:EdgeCreation}
 
-%TODO: discuss duplicate edges and also figure out what I want to do about them -- I think I want to leave them in and deal with them at the time of the algorithm...
+%TODO: discuss duplicate edges
 
-Once the users and tweets have been added to the database, the next step is to add the edges between the users and the tweets. There were twelve different types of edges used in this project, though the list is by no means exhaustive of the possibilities. The different edge types are listed in Table~\ref{tab:EdgeTypes}.
+Once the users and tweets have been added to the database, the next step is to add the edges between the users and the tweets. There were twelve different types of edges used in this project, though the list is by no means exhaustive of the possibilities. The different edge types are listed in Table~\ref{tab:EdgeTypes}. 
 
 The authorship edges are simple and are actually created when the users and tweets are initially indexed. For each tweet added to the database its author is added if that user is not already present and then an edge is added between the tweet and the author. These edges are simple.
 
-The remainder of the edge types are more complicated and fall broadly into two categories. The first category is the follower, retweet, mention, and @reply edges, which correspond to the network edges connecting users to other users and the edges connecting users to particular tweets. The second category of edge is the content edges which correspond to the edges between tweets.
+The remainder of the edge types are more complicated and fall broadly into two categories. The first category is the follower, retweet, mention, and @reply edges, which correspond to the network edges connecting users to other users and the edges connecting users to particular tweets. These edges all have an obvious directionality implied by the type of edge. The second category of edge is the content edges which correspond to the edges between tweets, and these edges don't have any obvious directionality.
 
 
 \begin{table}
 \centering
-\begin{tabular}{p{1.9cm}|p{10cm}}
-{\bf Edge Type} & {\bf Description} \\ \hline
-Authorship & Connects a user to a tweet authored by that user \\ \hline
-Follower & Connects a user to a tweet authored by one of their followees, as described in Section~\ref{sec:ProjectingToBipartite} \\ \hline
-Retweet & Connects the tweet to the person being retweeted \\ \hline
-Retweet Followees & Connects the tweets of the followees of the person being retweeted to the retweeter \\ \hline
-Retweet Followers & Connects the tweets of the person being retweeted to the followers of the retweeter \\ \hline
-Mention & Connects the tweet to the person being mentioned \\ \hline
-Mention Followees & Connects the tweets of the followees of the person being mentioned to the mentioner \\ \hline
-Mention Followers & Connects the tweets of the person being mentioned to the followers of the mentioner \\ \hline
-At Reply & Connects the tweet to the person being @replied to \\ \hline
-At Reply Content & Connects the tweets of the person being @replied to to the tweeter \\ \hline
-Hashtag & Connects all tweets which use a given hashtag to the authors of those tweets \\ \hline
-Content & Connects all tweets discussing similar content (cf. Section~\ref{sec:DeterminingContentSimilarity}) to the authors of those tweets. \\
+\begin{tabular}{p{1.9cm}|p{9cm}|p{1.9cm}}
+{\bf Edge Type} & {\bf Description} & {\bf Direction} \\ \hline
+Authorship & Connects a user to a tweet authored by that user & User $\rightarrow$ Tweet \\ \hline
+Follower & Connects a user to a tweet authored by one of their followees, as described in Section~\ref{sec:ProjectingToBipartite} & Tweet $\rightarrow$ User \\ \hline
+Retweet & Connects the tweet to the person being retweeted & User $\rightarrow$ Tweet \\ \hline
+Retweet Followees & Connects the tweets of the followees of the person being retweeted to the retweeter & Tweet $\rightarrow$ User \\ \hline
+Retweet Followers & Connects the tweets of the person being retweeted to the followers of the retweeter & Tweet $\rightarrow$ User \\ \hline
+Mention & Connects the tweet to the person being mentioned & User $\rightarrow$ Tweet \\ \hline
+Mention Followees & Connects the tweets of the followees of the person being mentioned to the mentioner & Tweet $\rightarrow$ User \\ \hline
+Mention Followers & Connects the tweets of the person being mentioned to the followers of the mentioner & Tweet $\rightarrow$ User \\ \hline
+At Reply & Connects the tweet to the person being @replied to & User $\rightarrow$ Tweet \\ \hline
+At Reply Content & Connects the tweets of the person being @replied to to the tweeter & Tweet $\rightarrow$ User \\ \hline
+Hashtag & Connects all tweets which use a given hashtag to the authors of those tweets & Bi-Directional \\ \hline
+Content & Connects all tweets discussing similar content (cf. Section~\ref{sec:DeterminingContentSimilarity}) to the authors of those tweets. & Bi-Directional \\
 \end{tabular}
 \caption{The types of edges in the graph}
 \label{tab:EdgeTypes}
@@ -196,7 +195,7 @@ Content & Connects all tweets discussing similar content (cf. Section~\ref{sec:D
 
 The follower edges are the most straightforward to describe and are simply the result of following the procedure for projection of user connections described in Section~\ref{sec:ProjectingToBipartite}.
 
-The retweet and mention edges are more complicated but are very analogous to one another. The simplest of these edges is the simple retweet or mention edge which connects the tweet to the person being mentioned or retweeted; as with the authorship edges, these are created at the time that the tweets are initially indexed. These edges capture the intuition that a person is likely to be interested in a tweet that mentions them or comments on something they say. The followees and followers versions of the retweet and mention edges, meanwhile, are more complicated.
+The retweet and mention edges are more complicated but are very analogous to one another. The simplest of these edges is the simple retweet or mention edge which connects the tweet to the person being mentioned or retweeted; as with the authorship edges, these are created at the time that the tweets are initially indexed. These edges capture the intuition that a high scoring tweet which mentions or retweets someone suggests that the person in question should also be scored highly and that a person is likely to be interested in a tweet that mentions them or comments on something they say. The followees and followers versions of the retweet and mention edges, meanwhile, are more complicated.
 
 The followees edge creates a connection between the person who is retweeting or mentioning someone and the followees of the person being mentioned or retweeted. This is because that user has proven by their retweet or mention that they are very interested in content from the user who authored the original tweet, so it stands to reason that they are correspondingly more likely to be interested in the same things as that person.
 
@@ -233,6 +232,14 @@ Leaving them as separate words gives some poor results such as `David' or `Unite
 For the purposes of this project, the former approach of leaving all entities as separate was taken. This leads to a small number of garbage edges but with the benefit of more correct connections and a simpler implementation. Put another way, this choice increases the recall of the connections between content while decreasing the precision.
 
 
+\subsection{Graph Statistics}
+
+The average degree of a user node and a tweet node can be taken by dividing the number of edges by the number of users and the number of tweets, respectively. For the set of tweet data used in this project, the first 500,000 tweets of the December data from the Stanford tweet dataset. When building the edges as described here, there were  121,788,048 edges, 500,000 tweet vertices, and 400,293 user vertices, meaning that the average user was connected to 304.2 tweets and the average tweet was connected to 243.5 users.
+
+%TODO: fill this in
+There are quite a few duplicate edges created using the above process because checking for duplicates at the time of graph creation slows that down dramatically; it is far easier to either ignore them when running the algorithm or to simply remove them from the graph after it has been created. Of the more than 120 million edges created, only \_\_\_ distinct edges were created. Experiments were performed to determine whether to ignore duplicate edges or whether to leave them in place to act as a weighting factor on the output---those results are discussed in Chapter 5. Additionally, in this graph a very large portion of the edges are content edges: 80,535,848. The speed of the algorithm can be increased dramatically by eliminating these edges, and the results of that on the quality of the recommendations are discussed in Chapter 5.
+
+
 \section{Initializing Scores}
 \label{sec:InitializingScores}
 
@@ -240,11 +247,24 @@ Broadly speaking, the initialization of scores was implemented as described in S
 
 \subsection{Tweet Scores}
 
-Calculating the initial tweet scores was mostly trivial. For purposes of finding a reference document which indicated the interests of the distinguished user against which all tweets could be compared, several possibilities were used. The first thing checked was whether a particular user had retweeted anything during the time period under study since retweets are the best predictor of what a user is interested in. If they had retweeted any content then those retweets were combined into one document with the`RT' removed and used as the reference document. Unfortunately, given that the data presented was a small subset of the overall data, most users had no retweets and those who did have any usually only had one, which decreases the accuracy of this technique by focusing on one particular interesting tweet.
+Calculating the initial tweet scores was mostly trivial. For purposes of finding a reference document which indicated the interests of the distinguished user against which all tweets could be compared, several possibilities were used. The first thing checked was whether a particular user had retweeted anything during the time period under study since retweets are the best predictor of what a user is interested in. If they had retweeted any content then those retweets were combined into one document with the `RT' removed and used as the reference document. Unfortunately, given that the data presented was a small subset of the overall data, most users had no retweets and those who did have any usually only had one, which decreases the accuracy of this technique by focusing on one particular interesting tweet.
 
 For those users with no recorded retweets in the timeframe under study, the composite document can be formed using the tweets of all of their followees. These can conveniently be recovered based on the edges by selecting all follower edges which connect to the distinguished user.
 
-The initialization of the tweet scores uses the previously discussed Lucene library to aid with content similarity. Lucene stores term frequency information within its index, simplifying the calculation of tf-idf information for use with cosine similarity. All of the tweet vertices are selected from the database and then iterated through with a tf-idf document vector created for each tweet and then compared to the reference document using cosine similarity. Once all of the scores have been added to the database, they can be normalized to add to one by using the SQL statement shown in Section~\ref{sec:DataStorage}. 
+The initialization of the tweet scores uses the previously discussed Lucene library to aid with content similarity. Lucene stores term frequency information within its index, simplifying the calculation of tf-idf information for use with cosine similarity. All of the tweet vertices are selected from the database and then iterated through with a tf-idf document vector created for each tweet and then compared to the reference document using cosine similarity. Once all of the scores have been added to the database, they can be normalized to add to one by using the SQL statement shown in Section~\ref{sec:DataStorage}.
+
+The canonical method of tf-idf calculation had an interesting side effect when used with the very short tweet documents. The brevity of the format means that many short words are used, and the social nature of the network also means that many personal pronouns are used. The canonical method of calculating cosine similarity using tf-idf did not adequately discount these highly common words, resulting in very highly scoring tweets which contained things such as "I love you so much", or which included multiple pronouns, like "I want you I need you I love you".
+
+These tweets clearly had no value on their own, so the decision was made to provide an additional factor to increase the amount by which these words were discounted. To do this, the idf score provided by the canonical tf-idf measurement was modified by multiplying it by an additional factor:
+
+\begin{center}
+\[
+tf(t) \times idf(t) \times discount(t) = |t| \times \log(\frac{|D|}{df(t)}) \times \frac{1}{\log(df(t) + 1)}
+\]
+\end{center}
+
+The value of this discount factor would range from 0.175 for a term that occurred in all 500,000 tweets to 3.32 for a term that occurred in only one tweet. This serves to increase the value of rare words while doing a better job of discounting extremely common words and dramatically improved the quality of the initial tweet scores. They still were not overly interesting by themselves, but certainly provided a better starting point than with the canonical tf-idf measurement.
+
 
 \subsection{User Scores}
 
@@ -265,8 +285,6 @@ Clearly it does not make sense to look for the intersection of the followers of 
 For this project, the function used was the intersection of the followees of the distinguished user with the followers of the user being scored. If users that the distinguished user has interest in express interest in another user, then it stands to reason that that user will be more likely to be of interest to the distinguished user.
 
 For each user $z$ in this intersection, the score component from that user is calculated according to $\frac{1}{\log |\Gamma (z) |}$, and this is summed for all such users $z$. In this formula, $|\Gamma (z)|$ represents the size of the neighbourhood $\Gamma (z)$, i.e. the number of followers that the user $z$ has, as found in the followercount table. This formula discounts the scoring effect of very popular users because they will naturally have more overlap in their follower lists with the followees of the distinguished user.
-
-%TODO: I'd still like to try this without the log
 
 This process is accomplished in the project by running a SQL query to retrieve the follower counts of all of these users and then summing them in the code. That SQL query is:
 
@@ -316,7 +334,7 @@ Note that in both cases the scores of the opposite vertex type from that being u
 
 Each vertex is considered in order and its score contribution to the various nodes on the other side is considered. The sorting makes it easy to determine the total number and type of edges emanating from a particular vertex because all of the edges from that vertex are considered one after another. Knowing the total number of edges leaving a particular vertex is necessary when calculating the transition probability. Upon iterating through all edges sorted by one component (either users or tweets), the scores for the other half of the graph can be updated with the newly calculated values.
 
-Pseudocode of the implementation is shown in Algorithm~\ref{alg:CoHitsAlgorithm}, while the actual implementation is shown in the code listing in Appendix~\ref{app:code} in the \texttt{updateTweetScores()} and \texttt{updateUserScores()} methods of the GraphManager class.
+Pseudocode of the implementation for one direction, updating the tweet scores, is shown for one iteration in Algorithm~\ref{alg:CoHitsAlgorithm}, while the actual implementation is shown in the code listing in Appendix~\ref{app:code} in the \texttt{updateTweetScores()} and \texttt{updateUserScores()} methods of the GraphManager class.
 
 %LaTeX is finnicky, and in many cases, very small changes to this mess the whole thing up
 \begin{algorithm}
@@ -356,28 +374,33 @@ Pseudocode of the implementation is shown in Algorithm~\ref{alg:CoHitsAlgorithm}
   move database cursor to next edge\;
  }
  update the tweet scores in the database according to \TweetScores
- \caption{The Co-HITS Implementation for updating the tweet scores. Updating user scores is identical, but with changes to the appropriate variable names.}
+ \caption{The Co-HITS Implementation for one iteration of updating the tweet scores. Updating user scores is identical, but with changes to the appropriate variable names.}
  \label{alg:CoHitsAlgorithm}
 \end{algorithm}
 
 It is clear from examining Algorithm~\ref{alg:CoHitsAlgorithm} that each edge is actually traversed twice, and since this algorithm is repeated twice for each iteration, the edges are actually traversed 4 times for each iteration. This is an unfortunate consequence of the need to know the number of edges leaving a particular vertex before calculating that vertex's effect on the vertices to which it connects.
 
-When updating the scores, the following SQL query is used:
+When updating the scores, two steps are used. First, the original score is set according to the original\_score column, the $\lambda_{t}$ parameter, and the total score from vertices which did not have an edge in the current direction because of the directionality of the edges. These dead-end vertices still need to be accounted for, so their scores are distributed evenly between all vertices on the other side of the graph. So, before the scores are set for specific vertices, the original score for all vertices can be updated with the following query:
 
 \begin{verbatim}
-UPDATE tweet_vertices
-  SET score=(? + (original_score * ?))
-  WHERE tweetid=? AND ABS(score - (? + (original_score * ?))) > 0;
+UPDATE tweet_vertices SET score=(? + (original_score * ?));
 \end{verbatim}
 
 \noindent
-Only the version for updating the tweet scores is shown, but the user score update proceeds in a nearly identical manner. The two question marks in the SET clause and in the ABS() portion of the WHERE clause have identical meanings: the first is the score contribution from the other vertices as calculated by Algorithm~\ref{alg:CoHitsAlgorithm}, and the second is the appropriate $\lambda$ value as discussed in Section~\ref{sec:CoHitsParameters}---$\lambda_{t}$ for updating the tweet vertices and $\lambda_{u}$ for updating the user vertices.
+Here, the first question mark indicates the sum of the scores from all dead-end vertices, and the second represents the $\lambda_{t}$ parameter. After the baseline score is added uniformly (and very quickly), the base score can be augmented with the calculated score factor for only those vertices which have been changed. This is performed as a batch operation using the following SQL query:
 
-The part of the WHERE clause with the check of the absolute value is intended to help with determining whether the algorithm has converged. The query will indicate that no rows were updated if the score does not change, making it easy to determine convergence. In their paper introducing the Co-HITS algorithm, \cite{Deng2009}, Deng, et. al. say that the iterative algorithm generally converges in under 10 iterations. This was found to be generally true in this project, depending on how it was defined.
+\begin{verbatim}
+UPDATE tweet_vertices SET score=? WHERE tweetid=?;
+\end{verbatim}
 
-Using the above SQL statement never resulted in absolute convergence in the sense that no additional vertices were updated, and relaxing the requirement of how close the value had to be in order to determine convergence simply resulted in the normalization of the scores being knocked out of balance. Still, after ten iterations, and usually much fewer, it was clear by examining the values as they changed that the changes that were still occurring were very small, not actually affecting the final outcome. For this project, the algorithm was allowed to run for up to fifteen iterations before terminating.
+\noindent
+Only the version for updating the tweet scores is shown, but the user score update proceeds in a nearly identical manner.
 
-Updating the scores in this manner also adds an additional complexity factor. It would be possible to perform this in $\mathcal{O}(U)$ or $\mathcal{O}(T)$ time (for users and tweets, respectively) if the vertices were traversed in order and updated in that way, but in practice this is slower than performing a series of batch updates using the B-Tree index which runs in $\mathcal{O}(U \log U)$ time. 
+The Co-HITS algorithm is intended to be run until convergence, i.e. when the score was not updated for either the tweets or the users during a particular iteration. This would require knowing when the update statement did not result in any content updates, which could be accomplished by introducing an additional constraint on the WHERE clause in the above update statement.
+
+In their paper introducing the Co-HITS algorithm, \cite{Deng2009}, Deng, et. al. say that the iterative algorithm generally converges in under 10 iterations. This was found to be generally true in this project, depending on how it was defined. 
+
+Using a WHERE statement to detect convergence never resulted in absolute convergence in the sense that no additional vertices were updated, and relaxing the requirement of how close the value had to be in order to determine convergence simply resulted in the normalization of the scores being knocked out of balance and no longer summing to 1 properly. Still, after ten iterations, and usually much fewer, it was clear by examining the values as they changed that the changes that were still occurring were very small, not actually affecting the final outcome or ordering of the tweets or users. For this project, the algorithm was allowed to run for up to ten iterations before terminating.
 
 
 \section{Retrieving Results}
