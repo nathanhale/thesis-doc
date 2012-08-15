@@ -1,9 +1,25 @@
 \chapter{Conclusion}
 
+
 \section{Enhancements and Future Work}
+
+\subsection{Parallelization and Performance Improvement}
+
+%TODO: find the stats of the server
+
+Though the speed of the algorithm has not yet been described except in broad terms, it is extremely slow. This is not due to the inherent speed of the algorithm, but rather it owes to the fact that all of the data being used is stored in a series of databases on an external storage device and accessing that data is very slow.
+
+The creation of the graph, for example, takes more than 24 hours due to the large number of lookups and insertions that must be done in order to connect more than 120 million edges. For example, for each tweet the followers of the author need to be looked up in order to determine the follower edge tweets, and then each of these edges must be inserted into the edges table in the database. The result is a slow process. Running the algorithm itself is much faster, but still on the order of hours rather than minutes or seconds. As with the speed of creating the graph, the slowness in running the algorithm is caused by the slowness of retrieving so much data from the hard disk.
+
+It would be very reasonable to run many of the steps in parallel using an algorithm such as MapReduce and thus dramatically increase the speed of the entire process. If many different external storage devices are used, then the speed of initializing the user scores can be increased by running the initialization completely in parallel. The maximum limit of this process would be to have one external storage device for each user in the graph, allowing the initialization to be done in seconds.
+
+The creation of the edges in the graph can also be run in parallel. In the existing algorithm, the creation of edges is done by iterating through each tweet and creating appropriate edges based on the type of tweet (mention, retweet, @reply), which entities and hashtags it contains, and who follows the author. It would be simple to duplicate the database information on multiple external storage devices and to look at multiple tweets in parallel.
+
+And of course, the algorithm itself could also be run in parallel. Recall that the edges are ordered when they are retrieved for updating the scores for each side of the bipartite graph. The score contributions onto the other side are considered for each vertex, a process made easier by the fact that the edges are 
+
+
+\subsection{Potential Enhancements}
 
 %Not sure if this paragraph is worth keeping
 One additional type of content edge that might be useful but which was not included in this project is a URL edge which connects tweets containing the same URL---in a shortened URL form using a service such as bit.ly, most likely---to the authors of those tweets. It wouldn't be feasible to expand all of the shortened URLs and to compare them that way, but since a given URL will always map to a particular shortened URL (at least for a period of several years) it is not necessary to expand them.
 
-
-\subsection{Parallelization and Performance Improvement}

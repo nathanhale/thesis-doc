@@ -1,3 +1,5 @@
+
+
 \chapter{Implementation}
 
 This chapter describes how the method of Chapter 3 was actually implemented for this project, a non-trivial step considering the major difficulties associated with the vast amount of data used. It begins by describing how the dataset was selected and the challenges that the large dataset presented in terms of storing and accessing the data. From there it moves on to describe how the bipartite graph was constructed, including selection of tweets and users, construction of edges,  and initialization of scores. From there, the actual implementation of the algorithm is described both in words and in pseudocode before finally describing the method of retrieving the results from the database.
@@ -19,7 +21,6 @@ The second dataset was the TREC dataset\footnote{http://trec.nist.gov/data/tweet
 
 The Stanford Twitter dataset contains 476 million tweets from more than 17 million users. These tweets were collected over a period of 7 months between 1 June, 2009 and 31 December, 2009. The authors of \cite{Yang2011} estimate that these tweets covered approximately 20-30\% of the tweets published in that time period\footnote{http://snap.stanford.edu/data/twitter7.html}. By itself, this dataset would be unusable for the same reason as the TREC database since it does not include any social graph information. Fortunately the authors link to the published social graph of \cite{Kwak2010}, which was crawled via the Twitter API contemporaneously with the collection of the Stanford tweet data. Though the vastness of this dataset presented many challenges during the project, it also was the best choice for putting together a recommendation system to be as accurate as possible.
 
-%TODO should these two paragraphs be included??
 Of these three datasets, only the TREC tweet data and the social graph of \cite{Kwak2010} are currently available to the public. Twitter changed their terms of service, requiring care to be taken with the data and researchers to remove tweets from their databases if they were deleted by their original authors. The TREC data is accompanied by a tool which queries the Twitter service to accomplish this, which is why it remains, though even it requires that the United States National Institute of Standards and Technology issue a password to allow the data to be downloaded.
 
 The tweets from the Stanford dataset were able to be used here because one of the researchers within the Oxford University Department of Computer Science had downloaded it before this change came into effect.
@@ -145,7 +146,7 @@ As with the \texttt{namenetwork} table, different clusterings were useful for di
 
 \section{Building the Graph}
 \label{sec:BuildingTheGraph}
-%TODO: rewrite this if this code is refactored
+
 Building the graph is a very important part of the process. This was taken care of in the GraphManager class (cf. Appendix~\ref{app:code}), and in particular in the \texttt{createGraph()} method and the other methods called from there. First the users and tweets are selected and indexed and then all the appropriate edges between the two sides of the bipartite graph are created.
 
 \subsection{Selecting Users and Tweets}
@@ -159,8 +160,6 @@ In order to ensure that the graph was maximally connected, only users who would 
 
 \subsection{Edge Creation}
 \label{sec:EdgeCreation}
-
-%TODO: discuss duplicate edges
 
 Once the users and tweets have been added to the database, the next step is to add the edges between the users and the tweets. There were twelve different types of edges used in this project, though the list is by no means exhaustive of the possibilities. The different edge types are listed in Table~\ref{tab:EdgeTypes}. 
 
@@ -236,8 +235,7 @@ For the purposes of this project, the former approach of leaving all entities as
 
 The average degree of a user node and a tweet node can be taken by dividing the number of edges by the number of users and the number of tweets, respectively. For the set of tweet data used in this project, the first 500,000 tweets of the December data from the Stanford tweet dataset. When building the edges as described here, there were  121,788,048 edges, 500,000 tweet vertices, and 400,293 user vertices, meaning that the average user was connected to 304.2 tweets and the average tweet was connected to 243.5 users.
 
-%TODO: fill this in
-There are quite a few duplicate edges created using the above process because checking for duplicates at the time of graph creation slows that down dramatically; it is far easier to either ignore them when running the algorithm or to simply remove them from the graph after it has been created. Of the more than 120 million edges created, only \_\_\_ distinct edges were created. Experiments were performed to determine whether to ignore duplicate edges or whether to leave them in place to act as a weighting factor on the output---those results are discussed in Chapter 5. Additionally, in this graph a very large portion of the edges are content edges: 80,535,848. The speed of the algorithm can be increased dramatically by eliminating these edges, and the results of that on the quality of the recommendations are discussed in Chapter 5.
+There are quite a few duplicate edges created using the above process because checking for duplicates at the time of graph creation slows that down dramatically; it is far easier to either ignore them when running the algorithm or to simply remove them from the graph after it has been created. Of the more than 120 million edges created, only  110,585,315 distinct edges were created. Experiments were performed to determine whether to ignore duplicate edges or whether to leave them in place to act as a weighting factor on the output---those results are discussed in Chapter 5. Additionally, in this graph a very large portion of the edges are content edges: 80,535,848. These were split more or less equally between edges based in hashtags and edges based on named entities:  42,608,235 of the edges were hashtag edges. The speed of the algorithm can be increased dramatically by eliminating these edges, and the results of that on the quality of the recommendations are discussed in Chapter 5.
 
 
 \section{Initializing Scores}
