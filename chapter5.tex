@@ -17,6 +17,7 @@ None of the research projects on Twitter content recommendation reviewed in Sect
 
 The bigger issue, however, is the lack of a set of ground truth judgements of the relevance of tweets and users in any dataset. One obvious cause of this is the lack of a canonical dataset upon which recommendations are made. Perhaps if ground truth judgements were available such a dataset would come into common usage, but the fact is that the job is too complex to realistically be performed reliably for any decent sample size. The content and users that are relevant for one user would be vastly different from the content and users relevant for another. And any database of a usable size would have millions and millions of tweets and users, far too many for all of them to be judged for even one user.
 
+
 \subsection{Distinguished User Selection}
 
 With these challenges in mind, it was necessary to develop methods of evaluating the performance of the algorithm that did not rely on a pre-judged set of relevant content and users. The first step was to choose distinguished users to whom the content should be recommended. For privacy reasons, those users are not named here. Overall, three users were chosen.
@@ -38,13 +39,10 @@ One major drawback of the user study is that it recommends content to these user
 
 The user studies consisted of two components: recommending users and recommending individual tweets. 
 
-%TODO: may ignore the user rec component of this, depending on how useful the comparison to the current network is. 
-
-For recommending individual tweets, the top one hundred tweets, retrieved as described in Section~\ref{sec:RetrievingResults}, were retrieved after the algorithm was run. Crucially, tweets which were an @reply to another user were filtered out since a user would not see those if they were to follow the user in question.
+For recommending individual tweets, the top thirty tweets from each experiment run, retrieved as described in Section~\ref{sec:RetrievingResults}, were retrieved after the algorithm was run. Crucially, tweets which were an @reply to another user were filtered out since a user would not see those if they were to follow the user in question. After running this procedure for all of the experiments, there were approximately 150 tweets for each user to rank.
 
 These filtered tweets were then presented to the user in a random order and each user was asked to rank each of the one hundred tweets from 1 to 5 using the values from Table~\ref{tab:UserRankingScoresForTweets}. From these scores, the precision was evaluated by considering tweets scored as either 4 or 5 to be relevant tweets and seeing how many of the top 20 tweets were relevant. Recall is not really possible to evaluate with a currently existing Twitter dataset, unfortunately, because of the lack of ground truth relevance judgements on the Twitter data.
 
-By evaluating 100 tweets it was possible to have most of the top 20 tweets ranked for the experimental variations that were performed since the top tweets were fairly static.
 
 \begin{table}
 \centering
@@ -61,9 +59,9 @@ By evaluating 100 tweets it was possible to have most of the top 20 tweets ranke
 \end{table}
 
 
-Recommending users proceeded in a largely similar manner. The recommended users were retrieved and the list was filtered so that it only included users who still have public Twitter data to allow the distinguished users to determine if they are interesting. A surprising number of the recommended users either no longer appear as users or have set their Twitter feeds to be private, preventing effective evaluation.
+Recommending users proceeded in a largely similar manner. A surprising number of the recommended users either no longer appear as users or have set their Twitter feeds to be private, preventing effective evaluation, so the option for the users to rate the user as not available was added. These users were then filtered out of the results when calculating precision.
 
-For each recommended user after the filtering was performed, the distinguished user under study was presented with a link to their Twitter page so that their profile and recent tweets could be viewed. Each user to be ranked was presented in random order. The users under study were then asked to rank the recommended users according the scale of Table~\ref{tab:UserRankingScoresForUsers}, which is largely similar to the scale for ranking tweets. The results of this ranking were then used in the same way to determine precision scores by considering users scored as either 4 or 5 to be relevant users.
+For each recommended user, the distinguished user under study was presented with a link to their Twitter page so that their profile and recent tweets could be viewed. Each user to be ranked was presented in random order. The users under study were then asked to rank the recommended users according the scale of Table~\ref{tab:UserRankingScoresForUsers}, which is largely similar to the scale for ranking tweets. The results of this ranking were then used in the same way to determine precision scores by considering users scored as either 4 or 5 to be relevant users.
 
 As with the tweets, it was not really possible to evaluate the recall of current users because it is not possible to say how many total relevant users there are. Additionally, since the time requirements for ranking users are higher, only 30 users were presented to the distinguished users to rank.
 
@@ -71,7 +69,8 @@ As with the tweets, it was not really possible to evaluate the recall of current
 \begin{table}
 \centering
 \begin{tabular}{c|l}
-{\bf Score} & {\bf Description of tweets with this score} \\ \hline
+{\bf Score} & {\bf Description of users with this score} \\ \hline
+0 & Users whose Twitter feeds are no longer available \\ \hline
 1 & Not relevant at all, e.g. users tweeting in another language \\ \hline
 2 & Uninteresting users \\ \hline
 3 & Average user; not particularly interesting, but not without value \\ \hline
@@ -87,14 +86,17 @@ As with the tweets, it was not really possible to evaluate the recall of current
 
 The user study is effective for evaluating the results for the known users but is subject to biases and changes in interests and does nothing for evaluating the results for unknown or unavailable users. As such, it was also necessary to develop more automated techniques.
 
-One such technique is to assume that a user's interests remain static between the time period represented by the dataset and the present day. This makes it possible to compare the tweets recommended by the system to the tweets that the user is actually interested in while using a separate data source to avoid overfitting.
+Perhaps the best possibility would be to use the closest thing to a ground truth dataset that exists: the list of all the tweets that a particular distinguished user retweeted. If the user's own connections to each of these tweets were severed then it would be possible to test just how many of these tweets were actually recommended. This presents two major problems, however. First, because the dataset is limited to only approximately 20\%-30\% of the tweets that were published in the time period, many of the initial tweets were missed and only their retweets were captured. Second, in the small time period being examined, most distinguished users would be unlikely to retweet even one or two tweets, leaving not enough data to evaluate.
 
-As described by \cite{Welch2011} and mentioned elsewhere in this dissertation, retweets are the most effective means of determining which content a person is interested in. Thus, each tweet recommended by the system can be compared to a composite document consisting of the most recent retweets from the present day twitter stream of the user for whom the recommendations are being created. These numbers can be compared to a baseline created by comparing each tweet in the system to the reference document and taking an average of their similarity scores.
+A more realistic technique is to assume that a user's interests remain static between the time period represented by the dataset and the present day. This makes it possible to compare the tweets recommended by the system to the tweets that the user is actually interested in while using a separate data source to avoid overfitting.
 
-For this project, the method of determining similarity was the cosine similarity metric as described in Section~\ref{sec:ContentScoringMethod}. Because of the large number of tweets in the database the baseline against which these numbers were compared was determined by taking the average of the similarity scores for ten thousand tweets rather than for the entire collection.
-%TODO: make sure this number is correct with what I actually do 
+As described by \cite{Welch2011} and mentioned elsewhere in this dissertation, retweets are the most effective means of determining which content a person is interested in. Thus, each tweet recommended by the system can be compared to each of the most recent retweets from the present day twitter stream of the user for whom the recommendations are being created, and the score can be averaged together. These numbers can be compared to a baseline created by comparing each tweet in the system to the reference tweets and taking an average of their similarity scores. This process can be repeated for tweets that the distinguished user has authored.
+
+For this project, the method of determining similarity was the cosine similarity metric as described in Section~\ref{sec:ContentScoringMethod}. Because of the large number of tweets in the database the baseline against which these numbers were compared was determined by taking the average of the similarity scores for 2,500 tweets rather than for the entire collection. Looking at the similarity scores for each 500 tweets showed that the average scores did not change very much from the score after evaluating the first 500, validating the choice of 2,500 as the limit.
 
 As with all of the means of evaluation, this is an imperfect measurement. Given their technical interests and the fast-paced nature of that field, many of the technologies that these users are interested in today may not have existed at the time the data was collected. Still, it does allow a comparison to show that the recommendations provided have value above random recommendation and because it is automated it allows far more documents to be ranked than the user study.
+
+
 
 \subsection{Comparison to Current Network State}
 
@@ -112,7 +114,7 @@ Calculating the probability of a random user from the data being amongst the pre
 \end{center}
 
 
-User $K_{i}$ has 43 followees in the dataset used here compared to 443 today and 72 followers in the dataset used here compared to 791 today. User $K_{j}$ has 105 followees in the dataset compared to 505 today and 87 followers in the dataset used here compared to 495 today. User $U$ has 279 followees in the dataset compared to 442 today to go along with 3,720 followers in the dataset compared to 7,191 today. Given these numbers, the probability that a random user would be a present day followee of each users is listed in Table~\ref{tab:RandomUserFolloweeProb}. These probabilities can then be compared to the number of users recommended by the algorithm who the user currently follows in order to establish the value of the algorithm.
+User $K_{i}$ has 43 followees in the dataset used here compared to 443 today and 72 followers in the dataset used here compared to 791 today. User $K_{j}$ has 105 followees in the dataset compared to 505 today and 87 followers in the dataset used here compared to 495 today. User $U$ has 279 followees in the dataset compared to 442 today to go along with 3,720 followers in the dataset compared to 7,191 today. Given these numbers, the probability that a random user would be a present day followee of each user is listed in Table~\ref{tab:RandomUserFolloweeProb}. These probabilities can then be compared to the number of users recommended by the algorithm who the user currently follows in order to establish the value of the algorithm.
 
 \begin{table}
 \centering
@@ -129,22 +131,41 @@ $K_{j}$ & 400 & 0.09\% \\
 
 \section{Results}
 
-%TODO: fill in similarity scores once I have that running
+This section describes the results which were obtained. Most of the scores are presented in the form of precision at rank and are based on the results of the user study. These scores are labelled in the various tables as `P@5', `P@10', `P@15', and `P@20', representing the precision at 5, 10, 15, and 20.
+
 
 \subsection{Baseline Results}
 \label{sec:BaselineResults}
 
-The results presented here as the baseline results are based on a $\lambda_{users}$ parameter value of 0.7 and a $\lambda_{tweets}$ parameter value of 0.9. These values indicate that the initial scores for the users are more useful as a basis for recommendation for 
+The results presented here as the baseline results are based on a $\lambda_{users}$ parameter value of 0.7 and a $\lambda_{tweets}$ parameter value of 0.9. These values represent the fact that the initial scores for the users are more useful as a basis for recommendation than the initial scores of the tweets.
 
-It is clear from looking at the initial scores for both users and tweets that the tweet scores are significantly less valuable than the user scores. While the initial user scores would provide an excellent ranking before the algorithm is even run, the initial tweet scores are not nearly so useful. By keeping the value of $\lambda_{tweets}$ closer to 1 the impact of these less useful initial scores on the final outcome is mitigated.
+It is clear just from looking at the initial scores for both users and tweets that the tweet scores are significantly less valuable than the user scores. While the initial user scores would provide an excellent ranking before the algorithm is even run, the initial tweet scores are not nearly so useful. By keeping the value of $\lambda_{tweets}$ closer to 1 the impact of these less useful initial scores on the final outcome is mitigated.
 
-These results are also based on the presence of all of the edge types listed in Table~\ref{tab:EdgeTypes} in Section~\ref{sec:BaselineResults}, with the directionality indicated there and an equal weighting for all edges.
+These results are also based on the presence of all of the edge types listed in Table~\ref{tab:EdgeTypes} in Section~\ref{sec:EdgeCreation}, with the directionality indicated there and an equal weighting for all edges.
+
+%TODO: need to mention that the tweets recommended were not just those of the recommended users, providing value over existing research
+
+
+
 
 \subsubsection{User Recommendation Results}
 
 For user $K_{i}$, the run under these default parameters provided generally excellent results on the user recommendations. 
 
 \subsubsection{Tweet Recommendation Results}
+
+%Evaluate file /Users/nathan/Documents/MSc Project/Results/Filtered/0_tweets_chrissaad_no369_biauth_default_lambdas_limited.txt.filtered.txt
+%	At 5.0, average similarity was 0.002861381742975362 for authored tweets and 9.970391799268069E-4 for retweeted ones
+%	At 10.0, average similarity was 0.0028523363259979366 for authored tweets and 0.0019007153359464305 for retweeted ones
+%	At 15.0, average similarity was 0.0030891166442760395 for authored tweets and 0.002274235064884012 for retweeted ones
+%	At 20.0, average similarity was 0.0033020119245802553 for authored tweets and 0.0026815792066991954 for retweeted ones
+%Complete!!
+%	At 500.0, average similarity was 0.0021710200561911087 for authored tweets and 0.001977382221245211 for retweeted ones
+%	At 1000.0, average similarity was 0.0021523330203517617 for authored tweets and 0.0020025094836102148 for retweeted ones
+%	At 1500.0, average similarity was 0.0021368920693421297 for authored tweets and 0.002002068095835786 for retweeted ones
+%	At 2000.0, average similarity was 0.002108292721184872 for authored tweets and 0.001972989803090882 for retweeted ones
+%	At 2500.0, average similarity was 0.0021026312761872846 for authored tweets and 0.001996319370288563 for retweeted ones
+
 
 
 \subsection{Varying $\lambda$ Parameters}
@@ -154,9 +175,11 @@ The choice of the $\lambda$ parameters from the previous section was not arbitra
 
 \subsection{Varying Edge Types Included}
 
-Removing 3,6,9 improved the results, removing 11 and 12 (content) had almost no effect, as did removing only 11.
+Removing 3,6,9 improved the results, removing 11 and 12 (content) had almost no effect, as did removing only 11 and only 12.
 
 \subsection{Varying Edge Weights}
+
+As was mentioned in Chapter 4, the algorithm was slow to run due to database access times. This made experimentation on edge weights particularly difficult because with so many different edges and possible weightings for them a rigorous experiment would require 
 
 \subsection{Varying Edge Directionality}
 \label{sec:VaryingEdgeDirectionality}
@@ -165,17 +188,39 @@ The directionality of the edges when producing the baseline results described in
 
 One obvious variation on these baseline results is to remove edge directionality altogether and assume that each edge type has an influence in both directions. For at least some of the edge types, this makes perfect sense. Consider the authorship edge, for example. It certainly makes sense that if a particular tweet received a high score because of something else that it was connected to then that score should be passed along to the author of the tweet. Similarly, a highly scoring user should obviously transfer some of that high score along to the tweets that they author.
 
-Running the algorithm with all edge types being bi-directional was one of the first experiments that was run for user $U$. 
+Running the algorithm with all edge types being bi-directional was one of the first experiments that was run for user $U$. The results from doing this were very clearly terrible.
+
+%TODO Fill this in more and describe the terribleness of the results
 
 
-For the edges based on the network state it does not makes sense to vary the directionality of most of these edges by reversing them. Take follower edges for example: clearly there is not an influence by a user on the tweets of someone they follow. 
+For the edges based on the network state it does not makes sense to vary the directionality of most of these edges by reversing them. Take follower edges for example: clearly there is not an influence by a user on the tweets of someone they follow. This was the biggest issue of the experiment done with no directionality at all, in fact---it assumed influence where there was none and came up with correspondingly terrible results.
 
-For content edges in particular, it is not clear that any one direction should be the one that has the influence; it could make sense that all tweets on a given subject should provide their scores to a user or that a highly scoring user should provide an impact on all tweets mentioning subjects of a similar subject.
+Eliminating the network edges from consideration then, leaves only the two content-based edges and the authorship edge. With these edges it is not clear that any one direction should be the one that has the influence; it could make sense that all tweets on a given subject should provide their scores to a user or that a highly scoring user should provide an impact on all tweets mentioning subjects of a similar subject. Similarly, leaving these as bi-directional also makes sense.
+
+Most of the experiments on edge directionality were run on user $K_{i}$, though the user is indicated in each case.
+
+
+\subsection{Optimal Configuration}
+
+After all of the experiments, it was clear which were the best values for the $\lambda$ parameters, which were the best edge directions, and which were the best edges to include. Combining all of these into one produced the optimal configuration, which had $\lambda_{users}$ at 0.7, $\lambda_{tweets}$ at 0.9, edge directionality as in Table~\ref{tab:EdgeTypes} except with the authorship edges being bi-directional, and edge types (3,6,9) removed.
+
+% FILL IN THE NAMES OF THE EDGE TYPES
 
 
 
-All of these results suggest that it is possible to get quite good recommendations using the method proposed in this project, though there is certainly room for improvement. Several possible future improvements are discussed in the concluding chapter.
+\section{Dataset Biases}
 
+The results described in this chapter revealed some issues that come with selecting tweets to use for such a study that can end up having a major impact on the final results.
+
+One drawback of the Twitter network is that particular communities are often over-represented, which can make it more difficult to find relevant content for people not in those communities. The tweet recommendations here show that effect quite clearly. User $U$ is a part of the Silicon Valley entrepreneurship community, which is very strongly represented on Twitter. Within the 500,000 tweets studied here that user's results were very good since there were a large number of tweets that would be interesting to someone from that community. But the trade-off is that there were far fewer tweets of interest available for the other users who were not part of that community.
+
+Another bias in the Twitter dataset is that the subjects of the tweets can be overwhelmed by one particular event. The day that the tweets used here were collected happened to be World AIDS Day in 2009, resulting in a much higher level of discussion of things related to that than would normally be expected. This also had the effect of limiting the number of interesting tweets for someone who wasn't interested in content related to World AIDS Day.
+
+Finally, because of limitations within the Twitter API and limitations of storing and collecting a large amount of data, the Twitter data used here only represents 20-30\% of tweets during the time period. This results in a lot of cases where a retweet is among the recommendations while the original tweet was never seen. The results could be improved if the repeated retweets of the same tweet were removed from the recommendations in favour of the original tweet.
+
+All of these biases were noticeable in the results, though the impact was generally not a major one and the algorithm still produced excellent recommendations. It would be interesting and valuable to study the effect that these biases have on the results, such as by studying a larger number of tweets, a more complete dataset, or multiple different time periods.
+
+That is far from the only work that remains to be done in this still very new research area, of course. While the results here are very promising, the experiments and methodologies suggest that plenty of improvements could be made and further experiments performed to improve the results described in this chapter. The final chapter will discuss some of the other future work that could be done to expand on and improve this project as well as providing concluding remarks on the project as a whole.
 
 
 
