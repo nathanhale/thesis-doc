@@ -134,15 +134,16 @@ $K_{j}$ & 400 & 0.09\% \\
 
 \section{Results}
 
-This section describes the results which were obtained. Most of the scores are presented in the form of precision at rank and are based on the results of the user study. These scores are labelled in the various tables as `P@5', `P@10', `P@15', and `P@20', representing the precision at 5, 10, 15, and 20. Recall from above that for purposes of calculating precision, a tweet or a user is considered to be relevant if it ranked at either 4 or 5 in the user study. Since user $U$ was not part of the user study, he has no numbers for this measurement.
+This section describes the results which were obtained. Most of the scores are presented in the form of precision at rank and are based on the results of the user study. These scores are labelled in the various tables as `P@5', `P@10', `P@15', and `P@20', representing the precision at 5, 10, 15, and 20. Recall from above that for purposes of calculating precision, a tweet or a user is considered to be relevant if it ranked at either 4 or 5 in the user study. Since user $U$ was not part of the user study, he has no numbers for this measurement. All of the rankings for the known users $K_{i}$ and $K_{j}$ also include a result for the average score at rank 5, 10, 15, and 20, which imparts some additional information about the quality of the rankings.
 
 For the user recommendation results, the tables also include a column for `\% 5s @ 5', `\% 5s @ 10', etc. This value is the percentage of users rated as a 5 at various ranks in the recommendations. This corresponds to the users that they actually have started following since this data was collected in 2009, though in the case of the users included in the user study, at least one or two of the users ranked as 5 were users who they did not follow before seeing the recommendation. This measurement is the metric described in Section~\ref{sec:ComparisonToCurrentNetwork} of comparing the list of recommended users to the users that the distinguished user now follows. Because it is possible to determine this for all users, this number is included for user $U$. These numbers compare very favourably with the chance of a random user appearing in this list as discussed in Section~\ref{sec:ComparisonToCurrentNetwork}, demonstrating that the user recommendations are very useful, though as will become apparent most of the value in user recommendations comes from the initial score.
 
+For most of the variations on the baseline results only one user was studied for each variation, providing a very small sample size. So while the results are very promising for many of the experiments, caution is warranted because there simply is not very much information. The need for improving the sample size is discussed further in Chapter 6. Another interesting outcome of the experimental variations was that the differences between many of the configurations were very small, usually with only a few users or tweets being different or sometimes simply with them being in a slightly different position.
 
 \subsection{Baseline Results}
 \label{sec:BaselineResults}
 
-The results presented here as the baseline results are based on a $\lambda_{users}$ parameter value of 0.7 and a $\lambda_{tweets}$ parameter value of 0.9. These values represent the fact that the initial scores for the users are more useful as a basis for recommendation than the initial scores of the tweets.
+The results presented here as the baseline results are based on a $\lambda_{users}$ parameter value of 0.7 and a $\lambda_{tweets}$ parameter value of 0.9. These values represent the fact that the initial scores of the users are more useful as a basis for recommendation than the initial scores of the tweets.
 
 It is clear just from looking at the initial scores for both users and tweets that the tweet scores are significantly less valuable than the user scores. While the initial user scores would provide an excellent ranking before the algorithm is even run, the initial tweet scores are not nearly so useful. By keeping the value of $\lambda_{tweets}$ closer to 1 the impact of these less useful initial scores on the final outcome is mitigated.
 
@@ -151,7 +152,7 @@ These results are also based on the presence of all of the edge types listed in 
 
 \subsubsection{User Recommendation Results}
 
-For all users, the run under these default parameters provided very good results on the user recommendations. In particular, user $K_{i}$ remarked that the user rankings were very good and that some of the recommended users for him were people that he found interesting enough to start following after seeing the recommendation. Table~\ref{tab:BaseUserResults} shows the results for user recommendation using the base configuration and compares these to the results obtained from just the initial scores. Note that in the case of the user $U$, the scores were the same for both.
+For all users, the run under these default parameters provided very good results on the user recommendations. In particular, user $K_{i}$ remarked that the user rankings were very good and that some of the recommended users for him were people that he found interesting enough to start following after seeing the recommendation. Table~\ref{tab:BaseUserResults} shows the results for user recommendation using the base configuration and compares these to the results obtained from just the initial scores. Note that in the case of the user $U$, the scores were the same for both, since no current followees were found by the default algorithm. One of his current followees did appear at a rank between 20 and 25 and the same user also showed up in some of the experimental variations which included user $U$, though those results are not described due to the lack of user ratings.
 
 
 \begin{table}
@@ -166,7 +167,7 @@ P@20 & - & 0.6 & 0.7 & 0.6 & 0.55 \\ \hline
 \% 5s@5    & 0\% & 40\% & 20\% & 40\% & 40\% \\ \hline
 \% 5s@10  & 0\% & 30\% & 30\% & 40\% & 40\% \\ \hline
 \% 5s@15  & 0\% & 20\% & 26.6\% & 33\% & 33\% \\ \hline
-\% 5s@20  & 0\% & 25\% & 25\% & 25\% & 25\% \\ \hline
+\% 5s@20  & 0\% & 20\% & 20\% & 25\% & 25\% \\ \hline
 
 Avg. Score @5   & - & 3.2 & 3.0 & 3.6 & 3.4 \\ \hline
 Avg. Score @10 & - & 3.7 & 3.7 & 3.8 & 3.5 \\ \hline
@@ -179,13 +180,13 @@ Avg. Score @20 & - & 3.55 & 3.65 & 3.6 & 3.35 \\
 
 
 
-These results are quite good, but at least for the case of these user recommendations the algorithm provides little to no improvement over the results that would be achieved if using only the initial score. As will become clear, however, the major value of these accurate user scores are that they make it possible to drastically improve the quality of the tweet recommendations over the initial scores.
+These results are quite good, and in particular the number of users in the recommendation list who are current followees of the distinguished users (\% 5s@Rank) compare very favourably with the probability of a random user from the dataset appearing in the followees list as presented in Table~\ref{tab:RandomUserFolloweeProb}, where all of the probabilities were less than 1\%. That being said, at least for the case of user recommendations the algorithm provides little to no improvement over the results that would be achieved if using only the initial score. As will become clear, however, the major value of these accurate user scores are that they make it possible to drastically improve the quality of the tweet recommendations over the initial scores.
 
 
 
 \subsubsection{Tweet Recommendation Results}
 
-The method of using cosine similarity for comparison as described in Section~\ref{sec:ComparisonToCurrentTweets} turned out not to be particularly useful, though it did demonstrate at a rudimentary level that the recommended tweets were at least somewhat valuable over noise. Because the information provided by this metric was of limited utility, it was only done for one set of recommendations. The results below come from the recommendations provided by the optimal configuration described in Section~\ref{sec:OptimalConfiguration} rather than for the base configuration, but since the tweets themselves recommended by these two configurations were so similar the results of this test would be similar as well.
+The method of using cosine similarity for comparison as described in Section~\ref{sec:ComparisonToCurrentTweets} turned out not to be particularly useful, though it did demonstrate at a rudimentary level that the recommended tweets were at least somewhat valuable over noise. Because the information provided by this metric was of limited utility, it was only done for one set of recommendations. The results below come from the recommendations provided by one of the combined configurations described in Section~\ref{sec:CombinedConfiguration} rather than for the base configuration, but since the tweets themselves recommended by these two configurations were so similar the results for either set of recommendations would be similar.
 
 Table~\ref{tab:RecommendedTweetSimilarity} shows the average cosine similarity between the recommended tweets and the reference tweets for user $U$. The table shows, for example, that the average of the similarity of the first 20 recommended tweets was 0.00330 for the reference set consisting of the tweets authored in the present day by the distinguished user and 0.00268 for the reference set consisting of the tweets retweeted in the present day by the distinguished user.
 
@@ -220,7 +221,7 @@ Table~\ref{tab:RecommendedTweetSimilarity} shows the average cosine similarity b
 
 Table~\ref{tab:RandomTweetSimilarity} shows the average cosine similarity between random tweets taken from the database and the various reference sets. The table shows, for example, that after all 2,500 tweets had been considered their average similarity to the reference set was 0.00210 and 0.00199 for the authored tweets and the retweeted tweets, respectively. The results from the recommended list of tweets are noticeably better than those for the random tweets. Still, given the inaccuracy of the cosine similarity measurement to begin with and the lack of a major difference in the similarity to retweeted tweets, this measurement was not particularly useful and will not be revisited. It does, however, suggest that the recommendations have at least some value.
 
-The comparison between the current network and the results of the user study provided a much better source of results. These results are shown in Table~\ref{tab:BaseTweetResults}, including the comparison with the results obtained using the initial tweet scores only. Since no user study information was available for user $U$, he is not included in this table. After rating the recommended tweets as part of the user study, user $K_{i}$ mentioned that the recommendations were at least as good as those provided by Twitter. User $K_{j}$ was generally a harsher critic of the tweets and he remarked that in general he was quite discerning about what he liked on Twitter and would automatically dislike a tweet which contained spelling errors, which on Twitter provides a major limitation.
+The comparison between the current network and the results of the user study provided a much better source of results. These results are shown in Table~\ref{tab:BaseTweetResults}, including a comparison with the results obtained using the initial tweet scores only. Since no user study information was available for user $U$, he is not included in this table. After rating the recommended tweets as part of the user study, user $K_{i}$ mentioned that the recommendations were at least as good as those provided by Twitter. User $K_{j}$ was generally a harsher critic of the tweets and he remarked that in general he was quite discerning about what he liked on Twitter and would automatically dislike a tweet which contained spelling errors, which on Twitter provides a major limitation.
 
 
 \begin{table}
@@ -240,7 +241,7 @@ Avg. Score @20 & 2.05 & 2.9 & 2.55 & 3.3 \\
 \label{tab:BaseTweetResults}
 \end{table}
 
-As with the user recommendations, these results are very good. In the original Co-HITS paper (\cite{Deng2009}), Deng et. al. had results for precision at rank 5 of between ~0.35 and ~0.39 and precision at 10 of between ~0.31 and ~0.35 for a web search application, and the results here are in the same neighbourhood when averaged together. It is not surprising to see that the results from the base configuration are quite a bit better than those based off of the original tweet scores given how poor the tweets with the highest initial scores were.
+As with the user recommendations, these results are very good. In the original Co-HITS paper (\cite{Deng2009}), Deng et. al. had results for precision at rank 5 of between ~0.35 and ~0.39 and precision at 10 of between ~0.31 and ~0.35 for a web search application, and the results here are in the same neighbourhood when averaged together. It is not surprising to see that the results from the base configuration are quite a bit better than those based off of the original tweet scores given how poor the tweets with the highest initial scores were. Though the precision scores show that user $K_{j}$ did not like the tweets in the top 10 of the recommendation list very much, the results from the rest of the top 20 and from the average score still suggest that the rankings were quite good and an improvement on the initial scores.
 
 
 
@@ -249,35 +250,347 @@ As with the user recommendations, these results are very good. In the original C
 
 The choice of the $\lambda$ parameters from the previous section was not arbitrary, but rather was based on experimentation to see which values for these parameters produced the best results. Two experiments were run. The first, on user $K_{i}$, held the value of $\lambda_{tweets}$ constant at 0.9 while varying the value of the $\lambda_{users}$ parameter. The second experiment was run on user $K_{j}$ and held the value of $\lambda_{users}$ constant at 0.7 while varying the value of the $\lambda_{tweets}$.
 
-Recall that the closer the $\lambda$ parameters are to 0, the more of an impact the initial score has on the final outcome---the fact which drove the selection of $\lambda$ values to hold constant for each experiment. The results of these experiments for P@10 and P@20 are shown in .... [fill this in]
+Recall that the closer the $\lambda$ parameters are to 0, the more of an impact the initial score has on the final outcome---the fact which drove the selection of $\lambda$ values to hold constant for each experiment. Since the tweet scores were so bad, it made sense to keep that parameter much closer to 1. The results of these experiments were obtained and graphed for P@5, P@10, and P@20.
+
+Figure~\ref{fig:TweetsForVaryingLambdaTweets} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter. Figure~\ref{fig:UsersForVaryingLambdaTweets} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter. %TODO: additional discussion once the graphs are in place
+
+Figure~\ref{fig:TweetsForVaryingLambdaUsers} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter. Figure~\ref{fig:UsersForVaryingLambdaUsers} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter. %TODO: additional discussion once the graphs are in place
+
+
 
 %TODO: say where! Need to get the data first, though.
+
+
+%%%% Varying lambda tweets -- tweet results
+
+%lu 07 lt 09
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
+%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
+%	@20: total is 58 (avg of 2.9), and 0.3 precision, with 2 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__07_lu_075_lt_limited.txt.filtered.txt
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 31 (avg of 3.1), and 0.5 precision, with 2 fives
+%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
+%	@20: total is 63 (avg of 3.15), and 0.4 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_07_lt_06_limited.txt.filtered.txt
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 29 (avg of 2.9), and 0.4 precision, with 2 fives
+%	@15: total is 48 (avg of 3.2), and 0.4666666666666667 precision, with 4 fives
+%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__lambda_tweets_045_limited.txt.filtered.txt
+%	@5: total is 15 (avg of 3.0), and 0.4 precision, with 2 fives
+%	@10: total is 29 (avg of 2.9), and 0.3 precision, with 2 fives
+%	@15: total is 44 (avg of 2.933333333333333), and 0.3333333333333333 precision, with 2 fives
+%	@20: total is 63 (avg of 3.15), and 0.4 precision, with 4 fives
+
+
+
+%%% Varying lambda users -- tweet results
+
+%TODO: verify the time on this to make sure there's nothing weird with it
+%Run experiments for /home/nathan/eval_results/filtered/tweets__0_3_lu_369_back_in_limited.txt.filtered.txt
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
+%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
+%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 2 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__0_4_lambda_users_limited.txt.filtered.txt
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
+%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
+%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 2 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__0_5_lambda_users_limited.txt.filtered.txt
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
+%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
+%	@20: total is 60 (avg of 3.0), and 0.35 precision, with 2 fives
+
+%lu 07 lt 09 -- tweets
+%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
+%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
+%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
+%	@20: total is 58 (avg of 2.9), and 0.3 precision, with 2 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__0_9_lambda_users_limited.txt.filtered.txt
+%	@5: total is 16 (avg of 3.2), and 0.4 precision, with 2 fives
+%	@10: total is 27 (avg of 2.7), and 0.2 precision, with 2 fives
+%	@15: total is 47 (avg of 3.1333333333333333), and 0.4666666666666667 precision, with 2 fives
+%	@20: total is 66 (avg of 3.3), and 0.55 precision, with 3 fives
+
+
+
+
+
+%%% Varying lambda users --- user results
+
+%Run experiments for /home/nathan/eval_results/filtered/users__lambda_tweets_045_limited.txt
+%	@5: total is 13 (avg of 2.6), and 0.4 precision, with 1 fives
+%	@10: total is 35 (avg of 3.5), and 0.7 precision, with 3 fives
+%	@15: total is 51 (avg of 3.4), and 0.6 precision, with 3 fives
+%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__lu_07_lt_06_limited.txt
+%	@5: total is 13 (avg of 2.6), and 0.4 precision, with 1 fives
+%	@10: total is 35 (avg of 3.5), and 0.7 precision, with 3 fives
+%	@15: total is 51 (avg of 3.4), and 0.6 precision, with 3 fives
+%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__07_lu_075_lt_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
+%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
+
+%09 lt
+%Run experiments for /home/nathan/eval_results/filtered/users__first_try_all_edges_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
+%	@20: total is 73 (avg of 3.65), and 0.7 precision, with 4 fives
+
+
+
+%%% Varying lambda users --- tweet results
+
+%Find out the date and stuff on this one...
+%Run experiments for /home/nathan/eval_results/filtered/users__0_3_lu_369_back_in_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 54 (avg of 3.6), and 0.6666666666666666 precision, with 4 fives
+%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__0_4_lambda_users_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 54 (avg of 3.6), and 0.6666666666666666 precision, with 4 fives
+%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__0_5_lambda_users_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
+%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
+
+%07 lu
+%Run experiments for /home/nathan/eval_results/filtered/users__first_try_all_edges_limited.txt
+%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
+%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
+%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
+%	@20: total is 73 (avg of 3.65), and 0.7 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__0_9_lambda_users_limited.txt
+%	@5: total is 13 (avg of 2.6), and 0.2 precision, with 0 fives
+%	@10: total is 24 (avg of 2.4), and 0.1 precision, with 0 fives
+%	@15: total is 38 (avg of 2.533333333333333), and 0.13333333333333333 precision, with 0 fives
+%	@20: total is 51 (avg of 2.55), and 0.2 precision, with 0 fives
+
+
+
+
+
+Another test was undertaken for user $K_{j}$, which was to hold $\lambda_{users}$ constant at 0.9 while varying the tweets parameter. Though not many data points were collected, it does still suggest that keeping the value of the $\lambda_{tweets}$ parameter closer to 1 is preferable. The graph for this data is shown in Figure~\ref{fig:KjVaryingLambaTweets}.
+
+
+%%% Small amount of data for varying lambda tweets, with lambda users at 0.9
+
+%user k_j
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__lambdasAt0_9_limited.txt.filtered.txt
+%	@5: total is 15 (avg of 3.0), and 0.0 precision, with 0 fives
+%	@10: total is 33 (avg of 3.3), and 0.3 precision, with 0 fives
+%	@15: total is 51 (avg of 3.4), and 0.4 precision, with 0 fives
+%	@20: total is 68 (avg of 3.4), and 0.4 precision, with 0 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__lambdasAt0_9_limited.txt
+%	@5: total is 8 (avg of 1.6), and 0.2 precision, with 0 fives
+%	@10: total is 20 (avg of 2.0), and 0.1 precision, with 0 fives
+%	@15: total is 38 (avg of 2.533333333333333), and 0.26666666666666666 precision, with 2 fives
+%	@20: total is 50 (avg of 2.5), and 0.25 precision, with 2 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_09_lt_07_limited.txt.filtered.txt
+%	@5: total is 13 (avg of 2.6), and 0.0 precision, with 0 fives
+%	@10: total is 29 (avg of 2.9), and 0.1 precision, with 0 fives
+%	@15: total is 45 (avg of 3.0), and 0.2 precision, with 0 fives
+%	@20: total is 62 (avg of 3.1), and 0.25 precision, with 0 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__lu_09_lt_07_limited.txt
+%	@5: total is 9 (avg of 1.8), and 0.2 precision, with 1 fives
+%	@10: total is 27 (avg of 2.7), and 0.4 precision, with 2 fives
+%	@15: total is 43 (avg of 2.8666666666666667), and 0.3333333333333333 precision, with 3 fives
+%	@20: total is 61 (avg of 3.05), and 0.4 precision, with 4 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_09_lt_03_limited.txt.filtered.txt
+%	@5: total is 13 (avg of 2.6), and 0.0 precision, with 0 fives
+%	@10: total is 27 (avg of 2.7), and 0.1 precision, with 0 fives
+%	@15: total is 39 (avg of 2.6), and 0.06666666666666667 precision, with 0 fives
+%	@20: total is 52 (avg of 2.6), and 0.05 precision, with 0 fives
+
+%Run experiments for /home/nathan/eval_results/filtered/users__lu_09_lt_03_limited.txt
+%	@5: total is 11 (avg of 2.2), and 0.2 precision, with 1 fives
+%	@10: total is 28 (avg of 2.8), and 0.3 precision, with 2 fives
+%	@15: total is 43 (avg of 2.8666666666666667), and 0.26666666666666666 precision, with 3 fives
+%	@20: total is 49 (avg of 2.45), and 0.2 precision, with 3 fives
+
+
+
+
+A final test was undertaken to move both $\lambda$ parameters to 1, thereby removing much of the impact of the initial scores. The baseline results for this configuration were terrible, with the precision for both tweets and users being 0.2, the average scores being between 2.5 and 2.75, and no scores of 5 for any of the users. The results for this section are included as part of the experiments on varying the types of edge included in the algorithm in Section~\ref{sec:VaryingEdgeTypes}.
+
+
 
 
 \subsection{Varying Edge Types Included}
 \label{sec:VaryingEdgeTypes}
 
-As was mentioned in Chapter 4, the algorithm was slow to run due to database access times. This made it difficult to experiment with removing edge types because with 12 different edge types there were a large number of possible combinations that could have been removed. Instead, the experiments focused on removing the edge types that seemed like they might be less valuable.
+As was mentioned in Chapter 4, the algorithm was slow to run due to database access times. This made it difficult to experiment with removing edge types because with twelve different edge types there were a large number of possible combinations that could have been removed. Instead, the experiments focused on removing the edge types that seemed like they might be less valuable.
 
-Recall the edge types from Table~\ref{tab:EdgeTypes}. The retweet, mention, and at-reply edges connect the user who was retweeted, mentioned, or at-replied to with the tweet that retweeted, mentioned, or at-replied to them. The logic behind this was previously discussed, but the link is a tenuous one and thus these are prime candidates for removal to see the effect on the results. It is also far from clear which direction is the appropriate one, which is discussed in the section on varying edge directionality, Section~\ref{sec:VaryingEdgeDirectionality}.
+Recall the edge types from Table~\ref{tab:EdgeTypes}. The retweet, mention, and at-reply edges connect the user who was retweeted, mentioned, or at-replied to with the tweet that retweeted, mentioned, or at-replied to them. The logic behind this was previously discussed, but the link is a tenuous one and thus these are prime candidates for removal to see the effect on the results. Note that the other five retweet, mention, and at-reply edges remained in place.
 
-There were 292,475 edges of these types, which is a very small amount in the context of 120 million total edges, but as can be seen from the results from removing these edges shown in Table~\ref{tab:Remove369}, removing these edges had a positive impact on the overall quality of the results when compared with the baseline results already presented. This experiment was done for user $K_{i}$ only %TODO is that true??
-
-%{tab:Remove369}
+There were 292,475 edges of these types, which is a very small amount in the context of 120 million total edges, and as can be seen from the results from removing these edges shown in Table~\ref{tab:Remove369}, removing these edges had very little impact on the overall quality of the results when compared with the baseline results already presented, and what little impact there was tended to be negative. This experiment was done for user $K_{i}$ only and it is difficult to draw too many conclusions from such a small smaple size, but since the edges do not seem to be particularly valuable they could perhaps be removed from the graph entirely in order to speed up the algorithm.
 
 
+\begin{table}
+\centering
+\begin{tabular}{l|p{2cm}|p{2cm}|p{2cm}|p{2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base Config. User Scores} & {\bf $K_{j}$ User Scores} & {\bf $K_{i}$ Base Config. Tweet Scores} & {\bf $K_{j}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.4 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.5 \\ \hline
+P@15 & 0.733 & 0.666 & 0.4 & 0.333 \\ \hline
+P@20 & 0.7 & 0.65 & 0.3 & 0.25 \\ \hline
 
-The results from removing one or both of the types of content edges were far less clear. Three separate experiments were run: one that removed hashtag edges, one that removed the entity-based edges, and one that removed both. There were a lot of the content edges: about 42 million hashtag edges and about 38 million entity-based edges. It was surprising, then, when removing them had such a small effect. Comparing the results in Table~\ref{tab:RemoveContent} with the baseline results already presented shows very little difference. As with the other experiment with removing edges, this experiment was only run for user $K_{i}$.
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 3.4 \\ \hline
+Avg. Score @10 & 3.7 & 3.7 & 3.3 & 3.4 \\ \hline
+Avg. Score @15 & 3.733 & 3.6 & 2.933 & 2.866 \\ \hline
+Avg. Score @20 & 3.65 & 3.6 & 2.9 & 2.7 \\ \hline
+
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 30\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+
+\end{tabular}
+\caption{The tweet score and user score results for user $K_{i}$ when removing the simple retweet, mention, and @reply edges.}
+\label{tab:Remove369}
+\end{table}
 
 
-%tab:RemoveContent
+
+The results from removing one or both of the types of content edges were only slightly clearer, though the impact improved the results rather than hurting them. Two basic experiments were run: one that removed all content edges (cf Table~\ref{tab:RemoveContent}) and one that removed only the hashtag edges (cf Table~\ref{tab:RemoveHashtags}). There were a lot of the content edges: about 42 million hashtag edges and about 38 million entity-based edges. It was surprising, then, when removing them had such a small effect. Comparing the results in Table~\ref{tab:RemoveContent} with the baseline results already presented shows very little difference. As with the other experiment with removing edges, this experiment was only run for user $K_{i}$.
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.6 \\ \hline
+P@15 & 0.733 & 0.866 & 0.4 & 0.466 \\ \hline
+P@20 & 0.7 & 0.8 & 0.3 & 0.45 \\ \hline
+
+Avg. Score @5   & 3.0 & 2.8 & 3.4 & 3.6 \\ \hline
+Avg. Score @10 & 3.7 & 3.5 & 3.3 & 3.7 \\ \hline
+Avg. Score @15 & 3.733 & 3.8 & 2.933 & 3.333 \\ \hline
+Avg. Score @20 & 3.65 & 3.7 & 2.9 & 3.25 \\ \hline
+
+\% 5s@5    & 20\% & 0\% & - & - \\ \hline
+\% 5s@10  & 30\% & 10\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 20\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{i}$ from removing all content edges, as compared with the base configuration}
+\label{tab:RemoveContent}
+\end{table}
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.7 \\ \hline
+P@15 & 0.733 & 0.733 & 0.4 & 0.533 \\ \hline
+P@20 & 0.7 & 0.7 & 0.3 & 0.45 \\ \hline
+
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 3.4 \\ \hline
+Avg. Score @10 & 3.7 & 3.7 & 3.3 & 3.7 \\ \hline
+Avg. Score @15 & 3.733 & 3.666 & 2.933 & 3.4 \\ \hline
+Avg. Score @20 & 3.65 & 3.65 & 2.9 & 3.25 \\ \hline
+
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 30\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{i}$ from removing the hashtags edges only, as compared with the base configuration}
+\label{tab:RemoveHashtags}
+\end{table}
+
+
+In order to attempt to isolate the effect of removing the edges from the effect of the initial scores, the removal of the content edges was also performed with both $\lambda$ parameters set to 1. The results for this are particularly interesting in that the results for the quality of the user recommendations were much lower than the default configuration and even lower than with the content edges in place, while the tweet scores improved greatly. This result is shown in Table~\ref{tab:RemoveContentLambdasAt1}, which compares the results of the user and tweet recommendations for user $K_{i}$ with the content edges in place but the $\lambda$ parameters set to 1 and the recommendations with the $\lambda$ parameters set to 1 but the content edges removed. As with all of the experimental variations described here, the sample size is too small to draw any firm conclusions, but it still suggests an interesting avenue for further exploration in the future.
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2cm}|p{2cm}|p{2cm}|p{2cm}}
+{\bf Metric} & {\bf $\lambda_{t,u}=1$ Base User Scores} & {\bf User Scores} & {\bf $\lambda_{t,u}=1$ Base Tweet Scores} & {\bf Tweet Scores} \\ \hline
+P@5   & 0.0 & 0.2 & 0.2 & 0.6 \\ \hline
+P@10 & 0.2 & 0.1 & 0.2 & 0.7 \\ \hline
+P@15 & 0.2 & 0.133 & 0.2 & 0.533 \\ \hline
+P@20 & 0.2 & 0.1 & 0.2 & 0.45 \\ \hline
+
+Avg. Score @5   & 2.4 & 2.4 & 2.8 & 3.8 \\ \hline
+Avg. Score @10 & 2.7 & 2.3 & 2.8 & 3.9 \\ \hline
+Avg. Score @15 & 2.8 & 2.2 & 2.733 & 3.4 \\ \hline
+Avg. Score @20 & 2.6 & 2.05 & 2.7 & 3.15 \\ \hline
+
+\% 5s@5    & 0\% & 0\% & - & - \\ \hline
+\% 5s@10  & 0\% & 0\% & - & - \\ \hline
+\% 5s@15  & 0\% & 0\% & - & - \\ \hline
+\% 5s@20  & 0\% & 0\% & - & - \\
+
+\end{tabular}
+\caption{The tweet score and user score results for user $K_{i}$ when removing the content edges with the $\lambda$ parameters set to 1}
+\label{tab:RemoveContentLambdasAt1}
+\end{table}
+
+One final test on removing edges combined the two main edge types that were experimented on by removing the retweet, mention, and at-reply edges in addition to the two types of content edges. Again, the $\lambda$ parameters were set to 1 in an attempt to remove the impact of the initial scores on the outcome. For the user recommendations these results were slightly better than those from removing only the content edges, while for the tweet recommendations they were more mixed, with the top 10 showing worse results and the rest of the top 20 showing improved results. The usual caveats about small sample size apply here as well, of course.
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2cm}|p{2cm}|p{2cm}|p{2cm}}
+{\bf Metric} & {\bf $\lambda_{t,u}=1$ Base User Scores} & {\bf User Scores} & {\bf $\lambda_{t,u}=1$ Base Tweet Scores} & {\bf Tweet Scores} \\ \hline
+P@5   & 0.0 & 0.4 & 0.2 & 0.6 \\ \hline
+P@10 & 0.2 & 0.2 & 0.2 & 0.5 \\ \hline
+P@15 & 0.2 & 0.2 & 0.2 & 0.666 \\ \hline
+P@20 & 0.2 & 0.15 & 0.2 & 0.75 \\ \hline
+
+Avg. Score @5   & 2.4 & 3.2 & 2.8 & 3.8 \\ \hline
+Avg. Score @10 & 2.7 & 2.7 & 2.8 & 3.5 \\ \hline
+Avg. Score @15 & 2.8 & 2.666 & 2.733 & 3.666 \\ \hline
+Avg. Score @20 & 2.6 & 2.15 & 2.7 & 3.75 \\ \hline
+
+\% 5s@5    & 0\% & 0\% & - & - \\ \hline
+\% 5s@10  & 0\% & 0\% & - & - \\ \hline
+\% 5s@15  & 0\% & 0\% & - & - \\ \hline
+\% 5s@20  & 0\% & 0\% & - & - \\
+
+\end{tabular}
+\caption{The tweet score and user score results for user $K_{i}$ when removing the content edges and the simple retweet, mention, and @reply edges with the $\lambda$ parameters set to 1.}
+\label{tab:RemoveContentAnd369LambdasAt1}
+\end{table}
 
 
 \subsection{Varying Edge Weights}
 
 The slowness of running the algorithm made experimentation on edge weights particularly difficult because with so many different edges and possible weightings for them a rigorous experiment would require far more time than was available. As such, the experiments which were done were based largely on intuition and were small in number, with only four different weightings being explored.
 
-The experiments done here were performed on user $K_{j}$, with directionality per the default, though authorship edges were bi-directional. Table~\ref{tab:EdgeWeightsUsed} shows the weights that were used for each edge type in each experiment. Table~\ref{tab:EdgeWeightResults} shows the results for each experiment for both user recommendations and tweet recommendations. Note that because of the results on varying edge types described in Section~\ref{sec:VaryingEdgeTypes}, the edges corresponding to retweets, mentions, and at replies were not included for any of these experiments, and thus no weights are listed.
+The experiments done here were performed on user $K_{j}$, with directionality per the default, though authorship edges were bi-directional. Table~\ref{tab:EdgeWeightsUsed} shows the weights that were used for each edge type in each experiment. Table~\ref{tab:WeightsTestsUsers} shows the results for each experiment on the user recommendations and Table~\ref{tab:WeightsTestsTweets} shows the results for each experiment on the tweet recommendations. Note that the edges corresponding to basic retweets, mentions, and at replies were not included for any of these experiments, and thus no weights are listed for these edge types.
 
 The methodology used was to sum the total weight of all edges emanating from a vertex, and the chance of taking a particular edge was just the weight of that edge's type divided by the total weight of all edges. So if a particular vertex had two edges with a weight of 2 each and one edge with a weight of  0.5 then the total weight would be 4.5, so the chance of going to each of the edges with weight 2 would be $2 \div 4.5 = 0.44$ and the chance of going to the edge with weight 0.5 would be $0.5 \div 4.5 = 0.11$.
 
@@ -300,8 +613,49 @@ Content & 1 & 1 & 1.5 & 1 \\
 \label{tab:EdgeWeightsUsed}
 \end{table}
 
-%TODO: need to insert the results here -- should there be a discussion about weighting 3,6,9?
+\begin{table}
+\centering
+\begin{tabular}{l|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}}
+{\bf Metric} & {\bf $K_{j}$ Base User Scores} & {\bf Test 1 User Scores} & {\bf Test 2 User Scores} & {\bf Test 3 User Scores} & {\bf Test 4 User Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@10 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@15 & 0.6 & 0.533 & 0.6 & 0.6 & 0.6 \\ \hline
+P@20 & 0.55 & 0.6 & 0.65 & 0.6 & 0.6 \\ \hline
 
+Avg. Score @5   & 3.4 & 3.4 & 3.4 & 3.4 & 3.4 \\ \hline
+Avg. Score @10 & 3.5 & 3.7 & 3.7 & 3.7 & 3.7 \\ \hline
+Avg. Score @15 & 3.6 & 3.4 & 3.666 & 3.666 & 3.666 \\ \hline
+Avg. Score @20 & 3.35 & 3.5 & 3.65 & 3.65 & 3.65 \\ \hline
+
+\% 5s@5    & 20\% & 40\% & 40\% & 40\% & 40\% \\ \hline
+\% 5s@10  & 40\% & 40\% & 40\% & 40\% & 40\% \\ \hline
+\% 5s@15  & 33.3\% & 33.3\% & 40\% & 40\% & 40\% \\ \hline
+\% 5s@20  & 25\% & 30\% & 30\% & 30\% & 30\% \\
+\end{tabular}
+\caption{Results of the user recommendations for user $K_{j}$ when varying the weights of the edges}
+\label{tab:WeightsTestsUsers}
+\end{table}
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}}
+{\bf Metric} & {\bf $K_{j}$ Base Tweet Scores} & {\bf Test 1 Tweet Scores} & {\bf Test 2 Tweet Scores} & {\bf Test 3 Tweet Scores} & {\bf Test 4 Tweet Scores} \\ \hline
+P@5   & 0.0 & 0.4 & 0.4 & 0.4 & 0.4 \\ \hline
+P@10 & 0.2 & 0.3 & 0.4 & 0.4 & 0.4 \\ \hline
+P@15 & 0.4 & 0.4 & 0.4 & 0.4 & 0.4 \\ \hline
+P@20 & 0.4 & 0.35 & 0.35 & 0.35 & 0.35 \\ \hline
+
+Avg. Score @5   & 2.8 & 3.4 & 3.4 & 3.4 & 3.4 \\ \hline
+Avg. Score @10 & 3.1 & 3.3 & 3.4 & 3.4 & 3.4 \\ \hline
+Avg. Score @15 & 3.266 & 3.4 & 3.4 & 3.4 & 3.4 \\ \hline
+Avg. Score @20 & 3.3 & 3.3 & 3.3 & 3.3 & 3.4 \\
+\end{tabular}
+\caption{Results of the tweet recommendations for user $K_{j}$ when varying the weights of the edges}
+\label{tab:WeightsTestsTweets}
+\end{table}
+
+One very clear result from the experiments is that none of them gave results which were particularly distinct, though the weights in the fourth experiment were perhaps slightly better. The most likely reason for this is that the values for the weights of the various edges were not very distinct between the different experiments. Instead, they were based on a few assumptions, such as that retweets, followers, and authorship are very important. Existing research and some of the other experiments support these intuitions, but the experiments run here neither proved nor disproved them.
 
 
 \subsection{Varying Edge Directionality}
@@ -309,27 +663,207 @@ Content & 1 & 1 & 1.5 & 1 \\
 
 The directionality of the edges when producing the baseline results described in Section~\ref{sec:BaselineResults} followed the description in Table~\ref{tab:EdgeTypes}. As shown in that section, this directionality produced generally good recommendations for both users and tweets.
 
-One obvious variation on these baseline results is to remove edge directionality altogether and assume that each edge type has an influence in both directions. For at least some of the edge types, this makes perfect sense. Consider the authorship edge, for example. It certainly makes sense that if a particular tweet received a high score because of something else that it was connected to then that score should be passed along to the author of the tweet. Similarly, a highly scoring user should obviously transfer some of that high score along to the tweets that they author.
+One obvious variation on these baseline results is to remove edge directionality altogether and assume that each edge type has an influence in both directions. For at least some of the edge types, this makes perfect sense. Consider the authorship edge, for example. It certainly makes sense that if a particular tweet received a high score because of something it was connected to then that score should be passed along to the author of the tweet. Similarly, a highly scoring user should obviously transfer some of that high score along to the tweets that they author.
 
-Running the algorithm with all edge types being bi-directional was one of the first experiments that was run for user $U$. The results from doing this were very clearly terrible. First, the tweets were dominated by one or two users, and the tweets of those users were political in nature and also diametrically opposed to the political views of the distinguished user. On the scale used for the user study, all of these would have ranked as a 2.
+Running the algorithm with all edge types being bi-directional was one of the first experiments that was run for user $U$. The results from doing this were very clearly terrible. The tweets were dominated by one or two users and the tweets of those users were political in nature and diametrically opposed to the political views of the distinguished user. On the scale used for the user study, all of these would have ranked as a 2 had user $U$ been part of the user study.
 
 The reason for this was that the user who produced the tweets followed over 40,000 people, and today follows more than 80,000 people. Clearly this user does not interact with or even read all of the tweets from these 40,000 people, but the algorithm cannot take that into account. So because this user tweeted frequently and followed so many people, their tweets were highly scored by the system with bi-directional edges because each of their 19 tweets was connected to thousands of users whose scores all contributed to high scores for these tweets.
 
 This result demonstrates that for the edges based on the network state it does not makes sense to vary the directionality of the edges, either by reversing them or by making them bi-directional. Take follower edges for example: clearly there is not an influence by a user on the tweets of someone they follow. This was the biggest issue in the experiment done with no directionality at all---it assumed influence where there was none and came up with correspondingly terrible results.
 
-Eliminating the network edges from consideration then, leaves only the two content-based edges, the authorship edge, and the basic retweet, mention, and at-reply edges which were discussed in the context of removing them in Section~\ref{sec:VaryingEdgeTypes}. With these edges it is not clear that any one direction should be the one that has the influence; for instance, it could make sense that all tweets on a given subject should provide their scores to a user or that a highly scoring user should provide an impact on all tweets mentioning subjects of a similar subject. Similarly, leaving these as bi-directional also makes sense.
-
-Most of the experiments on edge directionality were run on user $K_{i}$, though the user is indicated in each case.
-
-%experiments include content directions, author directions, and 3,6,9 directions
+Eliminating the network edges from consideration then leaves only the two content-based edges and the authorship edge as candidates for changing directionality. With these edges it is not clear that any one direction should be the one that has the influence; for instance, it could make sense that all tweets on a given subject should provide their scores to a user or that a highly scoring user should provide an impact on all tweets mentioning subjects of a similar subject. Similarly, leaving these as bi-directional as in the default configuration also makes sense.
 
 
-\subsection{Optimal Configuration}
-\label{sec:OptimalConfiguration}
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.7 \\ \hline
+P@15 & 0.733 & 0.866 & 0.4 & 0.533 \\ \hline
+P@20 & 0.7 & 0.75 & 0.3 & 0.45 \\ \hline
 
-After all of the experiments, it was clear which were the best values for the $\lambda$ parameters, which were the best edge directions, and which were the best edges to include. Combining all of these into one complete configuration produced the best results of all. This configuration had $\lambda_{users}$ at 0.7, $\lambda_{tweets}$ at 0.9, and the edge directionality as in Table~\ref{tab:EdgeTypes} except with the authorship edges being bi-directional. This configuration also omitted the retweet, mention, and at reply edges which connect the tweet to the person being retweeted, mentioned, or replied to. The results for this configuration are shown in Table~\ref{tab:OptimalConfigTweetResults} for tweets and in Table~\ref{tab:OptimalConfigUserResults} for users. These can be compared (very favourably) with the results based purely on the original scores, which are shown in Table~\ref{tab:OriginalScoreUserResults}.
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 3.6 \\ \hline
+Avg. Score @10 & 3.7 & 3.6 & 3.3 & 3.8 \\ \hline
+Avg. Score @15 & 3.733 & 3.866 & 2.933 & 3.4 \\ \hline
+Avg. Score @20 & 3.65 & 3.7 & 2.9 & 3.25 \\ \hline
 
-%TODO: table for optimal config, similar to those for base results for users and tweets
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 20\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{i}$ when content edges are directed from tweet to user}
+\label{tab:ContentTweetToUser}
+\end{table}
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.8 \\ \hline
+P@10 & 0.8 & 0.6 & 0.6 & 0.6 \\ \hline
+P@15 & 0.733 & 0.733 & 0.4 & 0.466 \\ \hline
+P@20 & 0.7 & 0.7 & 0.3 & 0.35 \\ \hline
+
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 4.4 \\ \hline
+Avg. Score @10 & 3.7 & 3.2 & 3.3 & 3.6 \\ \hline
+Avg. Score @15 & 3.733 & 3.6 & 2.933 & 3.266 \\ \hline
+Avg. Score @20 & 3.65 & 3.6 & 2.9 & 2.9 \\ \hline
+
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 10\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 20\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+\end{tabular}
+\caption{Results for user $K_{i}$ when content edges are directed from user to tweet}
+\label{tab:ContentUserToTweet}
+\end{table}
+
+Both directions for the content edges yield improved results for the tweet recommendations, which is quite a surprising result. Directing the content edges from tweet to user yields slightly better user recommendations, though the recommendations are quite good in both cases. Table~\ref{tab:ContentTweetToUser} shows the results when content edges are directed from tweet vertices to user vertices and Table~\ref{tab:ContentUserToTweet} shows the results when the content edges go in the other direction.
+
+
+Experiments were also done with the authorship edge. By default this edge was directed from the user to the tweet, but as was previously discussed this could certainly have been bi-directional. The results shown in Table~\ref{tab:BiDirectionalAuthorKi} are from running the algorithm for user $K_{i}$ with all the standard edges and directions but with the authorship edge being bi-directional. Table~\ref{tab:BiDirectionalAuthorKj}, meanwhile, shows the same experiment for user $K_{j}$. The results for this configuration show that changing the direction of these 500,000 edges has almost no effect.
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.6 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.5 \\ \hline
+P@15 & 0.733 & 0.733 & 0.4 & 0.4 \\ \hline
+P@20 & 0.7 & 0.65 & 0.3 & 0.4 \\ \hline
+
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 3.6 \\ \hline
+Avg. Score @10 & 3.7 & 3.7 & 3.3 & 3.3 \\ \hline
+Avg. Score @15 & 3.733 & 3.733 & 2.933 & 3.0 \\ \hline
+Avg. Score @20 & 3.65 & 3.6 & 2.9 & 3.1 \\ \hline
+
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 30\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+\end{tabular}
+\caption{Results for user $K_{i}$ when the authorship edge is bi-directional.}
+\label{tab:BiDirectionalAuthorKi}
+\end{table}
+
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{j}$ Base User Scores} & {\bf $K_{j}$ User Scores} & {\bf $K_{j}$ Base Tweet Scores} & {\bf $K_{j}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.0 & 0.0 \\ \hline
+P@10 & 0.6 & 0.6 & 0.2 & 0.2 \\ \hline
+P@15 & 0.6 & 0.6 & 0.4 & 0.266 \\ \hline
+P@20 & 0.55 & 0.6 & 0.4 & 0.3 \\ \hline
+
+Avg. Score @5   & 3.4 & 3.4 & 2.8 & 2.8 \\ \hline
+Avg. Score @10 & 3.5 & 3.7 & 3.1 & 3.0 \\ \hline
+Avg. Score @15 & 3.6 & 3.6 & 3.266 & 3.133 \\ \hline
+Avg. Score @20 & 3.35 & 3.5 & 3.3 & 3.2 \\ \hline
+
+\% 5s@5    & 20\% & 40\% & - & - \\ \hline
+\% 5s@10  & 40\% & 40\% & - & - \\ \hline
+\% 5s@15  & 33.3\% & 33\% & - & - \\ \hline
+\% 5s@20  & 25\% & 30\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{j}$ when the authorship edge is bi-directional.}
+\label{tab:BiDirectionalAuthorKj}
+\end{table}
+
+
+
+\subsection{Combined Configuration}
+\label{sec:CombinedConfiguration}
+
+Most of the experiments showed very mixed results for individual variations, with most of the experiments making very little difference on the final outcome. The values for the $\lambda$ parameters were fairly clear, but changing the included edges and the edge directions had little effect. Still, one thing that has not been explored thus far is a combination of some these different features. The results in this section combine some of the past experiments into a combined configuration in hopes that the combination will produce better results than the generally middling results of the previous experiments. Unfortunately, the results are generally comparable to those of the baseline configuration, though perhaps a more robust experiment which studied more users would reveal more clear-cut results.
+
+Table~\ref{tab:BiAuthorNo369Ki} shows the results for user $K_{i}$ with the authorship edge being bi-directional and the simple retweet, mention, and at-reply edges being removed. As with many of the other experimental variations the results differ only slightly from the baseline results, and only one or two tweets and users are different. Table~\ref{tab:BiAuthorNo369Kj} shows the results of the same experiment for $K_{j}$, which shows slightly better results. The tweet recommendations for user $K_{j}$ do show quite a bit of improvement early in the recommendations list, though this is due in no small part to the fact that the baseline tweet results for this user were poor to begin with.
+
+By default, the algorithm ignores the duplicate edges of the same type linking a user and a tweet that exist in the graph. As an additional experiment on user $K_{i}$, the experiment shown was repeated with the duplicate edges in the graph being left in. The results for this were identical to the results when leaving these edges out. This surprising result suggests a possible way to speed up the algorithm, since more than 10 million of the edges are duplicates.
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{i}$ Base User Scores} & {\bf $K_{i}$ User Scores} & {\bf $K_{i}$ Base Tweet Scores} & {\bf $K_{i}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.6 & 0.4 \\ \hline
+P@10 & 0.8 & 0.8 & 0.6 & 0.4 \\ \hline
+P@15 & 0.733 & 0.666 & 0.4 & 0.4 \\ \hline
+P@20 & 0.7 & 0.6 & 0.3 & 0.3 \\ \hline
+
+Avg. Score @5   & 3.0 & 3.0 & 3.4 & 3.4 \\ \hline
+Avg. Score @10 & 3.7 & 3.7 & 3.3 & 3.2 \\ \hline
+Avg. Score @15 & 3.733 & 3.6 & 2.933 & 3.066 \\ \hline
+Avg. Score @20 & 3.65 & 3.55 & 2.9 & 2.8 \\ \hline
+
+\% 5s@5    & 20\% & 20\% & - & - \\ \hline
+\% 5s@10  & 30\% & 30\% & - & - \\ \hline
+\% 5s@15  & 26.6\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 20\% & 20\% & - & - \\
+\end{tabular}
+\caption{Results for user $K_{i}$ with the authorship edge being bi-directional and the retweet, mention, and @reply edges not included.}
+\label{tab:BiAuthorNo369Ki}
+\end{table}
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{j}$ Base User Scores} & {\bf $K_{j}$ User Scores} & {\bf $K_{j}$ Base Tweet Scores} & {\bf $K_{j}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.0 & 0.4 \\ \hline
+P@10 & 0.6 & 0.6 & 0.2 & 0.4 \\ \hline
+P@15 & 0.6 & 0.6 & 0.4 & 0.333 \\ \hline
+P@20 & 0.55 & 0.65 & 0.4 & 0.4 \\ \hline
+
+Avg. Score @5   & 3.4 & 3.4 & 2.8 & 3.4 \\ \hline
+Avg. Score @10 & 3.5 & 3.7 & 3.1 & 3.5 \\ \hline
+Avg. Score @15 & 3.6 & 3.6 & 3.266 & 3.266 \\ \hline
+Avg. Score @20 & 3.35 & 3.65 & 3.3 & 3.35 \\ \hline
+
+\% 5s@5    & 20\% & 40\% & - & - \\ \hline
+\% 5s@10  & 40\% & 40\% & - & - \\ \hline
+\% 5s@15  & 33.3\% & 33.3\% & - & - \\ \hline
+\% 5s@20  & 25\% & 30\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{j}$ with the authorship edge being bi-directional and the retweet, mention, and @reply edges not included.}
+\label{tab:BiAuthorNo369Kj}
+\end{table}
+
+One final experiment was run on $K_{j}$, similar to those on user $K_{i}$, but with the two content edge types not included. The results for this experiment are shown in Table~\ref{tab:BiAuthorNo369NoContent} and show that the early tweet recommendations were much improved over the baseline, while the user recommendations were about the same.
+
+
+\begin{table}
+\centering
+\begin{tabular}{l|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}}
+{\bf Metric} & {\bf $K_{j}$ Base User Scores} & {\bf $K_{j}$ User Scores} & {\bf $K_{j}$ Base Tweet Scores} & {\bf $K_{j}$ Tweet Scores} \\ \hline
+P@5   & 0.6 & 0.6 & 0.0 & 0.6 \\ \hline
+P@10 & 0.6 & 0.5 & 0.2 & 0.5 \\ \hline
+P@15 & 0.6 & 0.533 & 0.4 & 0.466 \\ \hline
+P@20 & 0.55 & 0.5 & 0.4 & 0.4 \\ \hline
+
+Avg. Score @5   & 3.4 & 3.4 & 2.8 & 3.6 \\ \hline
+Avg. Score @10 & 3.5 & 3.3 & 3.1 & 3.5 \\ \hline
+Avg. Score @15 & 3.6 & 3.4 & 3.266 & 3.466 \\ \hline
+Avg. Score @20 & 3.35 & 3.3 & 3.3 & 3.4 \\ \hline
+
+\% 5s@5    & 20\% & 40\% & - & - \\ \hline
+\% 5s@10  & 40\% & 30\% & - & - \\ \hline
+\% 5s@15  & 33.3\% & 26.6\% & - & - \\ \hline
+\% 5s@20  & 25\% & 25\% & - & - \\
+
+\end{tabular}
+\caption{Results for user $K_{j}$ with the authorship edge being bi-directional and the retweet, mention, @reply, hashtag, and entity-based edges not included.}
+\label{tab:BiAuthorNo369NoContent}
+\end{table}
+
+
 
 \section{Dataset Biases}
 
