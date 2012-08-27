@@ -9,8 +9,6 @@ Java was chosen as the programming language for this project due to the wide ado
 \section{Selecting a Dataset}
 \label{sec:SelectingADataset}
 
-%TODO: need to cite the stanford data
-
 When beginning the project, one of the first questions was which dataset to use. There were four possibilities: downloading data via the Twitter API specifically for this project, the Choudhury data (\cite{Choudhury2010}), the Stanford data (\cite{Yang2011}) using the social graph of Kwak et. al. (\cite{Kwak2010}), and the database created for the Text Retrieval Conference (TREC). Each had advantages and disadvantages.
 
 Given the availability of existing datasets that would meet the needs of the project, the possibility of downloading a social graph and set of tweets specifically for this project was dismissed early on, leaving the task as one of selecting which of the three datasets was best.
@@ -218,7 +216,7 @@ Determining which tweets contain similar content to one another is an important 
 
 The method for determining this similarity need not be very complicated, though it certainly can be. Using topic models and other techniques from statistics and machine learning would certainly generate good results for determining content similarity, but at the cost of being quite computationally expensive.
 
-For this project a much simpler and faster method was used: named-entity recognition (NER). Using the Stanford Named-Entity Recognizer \cite{StanfordNER2011}, each tweet was run through the tool in order to find any named entities such as people, places, and organizations. This was done as the tweets were being processed for other content information such as hashtags.
+For this project a much simpler and faster method was used: named-entity recognition (NER). Using the Stanford Named-Entity Recognizer \cite{Finkel2005}, each tweet was run through the tool in order to find any named entities such as people, places, and organizations. This was done as the tweets were being processed for other content information such as hashtags.
 
 Each named entity found was converted to lower case and stored in memory along with the id of the tweet in which it appeared. If another tweet was found containing the same named entity then that tweet's id was stored along with the ids of the other tweets already found with that id. Once all of the tweets had been processed, each list of tweetids was connected to the authors of the respective tweets.
 
@@ -244,6 +242,7 @@ There are quite a few duplicate edges created using the above process because ch
 Broadly speaking, the initialization of scores was implemented as described in Section~\ref{sec:InitializationOfScores}. The user scores were initialized according to the method of Adamic and Adar (\cite{Adamic2003}) as described in \cite{LibenNowell2007} and the tweet scores were initialized via cosine similarity.
 
 \subsection{Tweet Scores}
+\label{sec:TweetScoresImplementation}
 
 Calculating the initial tweet scores was mostly trivial. For purposes of finding a reference document which indicated the interests of the distinguished user against which all tweets could be compared, several possibilities were used. The first thing checked was whether a particular user had retweeted anything during the time period under study since retweets are the best predictor of what a user is interested in. If they had retweeted any content then those retweets were combined into one document with the `RT' removed and used as the reference document. Unfortunately, given that the data presented was a small subset of the overall data, most users had no retweets and those who did have any usually only had one, which decreases the accuracy of this technique by focusing on one particular interesting tweet.
 

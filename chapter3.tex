@@ -22,7 +22,7 @@ The nature of a social network---a group of users connected to one another by va
 
 The obvious approach to take is to build a graph where each user is a vertex and the relationships between those users are the edges, as in Figure~\ref{fig:simple_social_network_graph}. Thus, if user A follows user B then there will be a directed edge from vertex A to vertex B. When using the network-based approach for recommendation, this basic graph of the social network is often used, e.g. as in \cite{Hangal2010}. If it is desirable for the analysis to take the meaning of the content into account then this basic graph can be extended by creating edges between users who frequently discuss similar topics. This can be extended further by weighting the edges based on the strength of the relationship as determined by factors such as common activity as described in Section~\ref{sec:FbContentRec}. \cite{Hangal2010}, for example, augmented the basic social graph with additional links based on influence calculations.
 
-Once a weighted graph such as this has been constructed a number of different algorithms can be employed including random walks, as in \cite{Backstrom2011}, the PageRank algorithm, as in \cite{Weng2010}, or simply searching for the strongest links to users who are not already connected to the distinguished user.
+Once a weighted graph such as this has been constructed a number of different algorithms can be employed including random walks, as in \cite{Backstrom2010}, the PageRank algorithm, as in \cite{Weng2010}, or simply searching for the strongest links to users who are not already connected to the distinguished user.
 
 The obvious limitation to this simple approach is that it has no way of recommending particular pieces of content---the best it can hope to do is to select content from the top users using some similarity metric to compare that content to content that the user has already indicated interest in. Since the goal of this dissertation is to recommend both users and content this simple approach is clearly not sufficient.
 
@@ -174,7 +174,7 @@ Fortunately, in social networks, it is possible to make some very accurate initi
 \subsection{User Scores}
 \label{sec:InitializationOfUserScores}
 
-Much work has been done on the so-called link prediction problem which seeks to predict which links will be created between users in a social network, i.e. which other users are most relevant to a given user. \cite{LibenNowell2007}, \cite{Kunegis2010}, and \cite{Backstrom2011} are all examples of studies that have been done on this subject.
+Much work has been done on the so-called link prediction problem which seeks to predict which links will be created between users in a social network, i.e. which other users are most relevant to a given user. \cite{LibenNowell2007}, \cite{Kunegis2010}, and \cite{Backstrom2010} are all examples of studies that have been done on this subject.
 
 Because this process of determining original scores is only the initial step in the recommendations, for this project it makes sense to choose a method which is as fast as possible while still maintaining a high degree of accuracy. \cite{LibenNowell2007} studies a number of different methods of link-prediction, ranging from very fast and easy to calculate to very complex calculations. Fortunately, one of the most accurate methods is also one of the easiest to calculate, which is the method of Adamic and Adar from \cite{Adamic2003}.
 
