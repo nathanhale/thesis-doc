@@ -252,195 +252,71 @@ The choice of the $\lambda$ parameters from the previous section was not arbitra
 
 Recall that the closer the $\lambda$ parameters are to 0, the more of an impact the initial score has on the final outcome---the fact which drove the selection of $\lambda$ values to hold constant for each experiment. Since the tweet scores were so bad, it made sense to keep that parameter much closer to 1. The results of these experiments were obtained and graphed for P@5, P@10, and P@20.
 
-Figure~\ref{fig:TweetsForVaryingLambdaTweets} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter. Figure~\ref{fig:UsersForVaryingLambdaTweets} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter. %TODO: additional discussion once the graphs are in place
-
-Figure~\ref{fig:TweetsForVaryingLambdaUsers} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter. Figure~\ref{fig:UsersForVaryingLambdaUsers} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter. %TODO: additional discussion once the graphs are in place
+Figure~\ref{fig:UsersForVaryingLambdaTweets} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter, while Figure~\ref{fig:TweetsForVaryingLambdaTweets} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{tweets}$ parameter. Both of these graphs confirm that a value of lambda tweets closer to 1, as was used for the baseline configuration, provides better results.
 
 
+%Example of the R code used to produce these graphs
 
-%TODO: say where! Need to get the data first, though.
+%p5y <- c(0.6, 0.6, 0.6, 0.4)
+%p10y <- c(0.6, 0.5, 0.4, 0.3)
+%p20y <- c(0.3, 0.4, 0.4, 0.4)
+%lambda_tweets_x <- c(0.9, 0.75, 0.6, 0.45)
 
+%x_range <- range(lambda_tweets_x)
+%y_range <- range(0, 1)
 
-%%%% Varying lambda tweets -- tweet results
+%plot(lambda_tweets_x, p5y, type="o", col="blue", ylim=y_range, pch=21, lty=1, lwd=2, xlab="Lambda Tweets", ylab="Precision")
+%lines(lambda_tweets_x, p10y, type="o", col="red", ylim=y_range, pch=22, lty=2, lwd=2)
+%lines(lambda_tweets_x, p20y, type="o", col="green", ylim=y_range, pch=23, lty=3, lwd=2)
 
-%lu 07 lt 09
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
-%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
-%	@20: total is 58 (avg of 2.9), and 0.3 precision, with 2 fives
+%legend(x_range[1], y_range[2], c("P@5","P@10","P@20"), col=c("blue","red","green"), pch=21:23, lty=1:3, lwd=2)
 
-%Run experiments for /home/nathan/eval_results/filtered/tweets__07_lu_075_lt_limited.txt.filtered.txt
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 31 (avg of 3.1), and 0.5 precision, with 2 fives
-%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
-%	@20: total is 63 (avg of 3.15), and 0.4 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_07_lt_06_limited.txt.filtered.txt
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 29 (avg of 2.9), and 0.4 precision, with 2 fives
-%	@15: total is 48 (avg of 3.2), and 0.4666666666666667 precision, with 4 fives
-%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__lambda_tweets_045_limited.txt.filtered.txt
-%	@5: total is 15 (avg of 3.0), and 0.4 precision, with 2 fives
-%	@10: total is 29 (avg of 2.9), and 0.3 precision, with 2 fives
-%	@15: total is 44 (avg of 2.933333333333333), and 0.3333333333333333 precision, with 2 fives
-%	@20: total is 63 (avg of 3.15), and 0.4 precision, with 4 fives
-
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Ki_Varying_LambdaTweets_UserResults}
+  \caption[User recommendation results for user $K_{i}$ when varying $\lambda_{tweets}$]{User recommendation results for user $K_{i}$ when varying $\lambda_{tweets}$. The value of $\lambda_{users}$ is held constant at 0.7.}
+  \label{fig:UsersForVaryingLambdaTweets}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Ki_Varying_LambdaTweets_TweetResults}
+  \caption[Tweet recommendation results for user $K_{i}$ when varying $\lambda_{tweets}$]{Tweet recommendation results for user $K_{i}$ when varying $\lambda_{tweets}$. The value of $\lambda_{users}$ is held constant at 0.7.}
+  \label{fig:TweetsForVaryingLambdaTweets}
+\end{figure}
 
 
-%%% Varying lambda users -- tweet results
+Figure~\ref{fig:UsersForVaryingLambdaUsers} shows the results of the user recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter, while Figure~\ref{fig:TweetsForVaryingLambdaUsers} shows the results of the tweet recommendations for user $K_{i}$ when varying the $\lambda_{users}$ parameter. Both of these graphs confirm that a value of lambda tweets too close to 1 will provide terrible results. Because the initial scores for the users are so good, it does not particularly matter how close to 0 the value of lambda users gets.
 
-%TODO: verify the time on this to make sure there's nothing weird with it
-%Run experiments for /home/nathan/eval_results/filtered/tweets__0_3_lu_369_back_in_limited.txt.filtered.txt
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
-%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
-%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 2 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__0_4_lambda_users_limited.txt.filtered.txt
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
-%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
-%	@20: total is 62 (avg of 3.1), and 0.4 precision, with 2 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__0_5_lambda_users_limited.txt.filtered.txt
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
-%	@15: total is 45 (avg of 3.0), and 0.4 precision, with 2 fives
-%	@20: total is 60 (avg of 3.0), and 0.35 precision, with 2 fives
-
-%lu 07 lt 09 -- tweets
-%	@5: total is 17 (avg of 3.4), and 0.6 precision, with 2 fives
-%	@10: total is 33 (avg of 3.3), and 0.6 precision, with 2 fives
-%	@15: total is 44 (avg of 2.933333333333333), and 0.4 precision, with 2 fives
-%	@20: total is 58 (avg of 2.9), and 0.3 precision, with 2 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__0_9_lambda_users_limited.txt.filtered.txt
-%	@5: total is 16 (avg of 3.2), and 0.4 precision, with 2 fives
-%	@10: total is 27 (avg of 2.7), and 0.2 precision, with 2 fives
-%	@15: total is 47 (avg of 3.1333333333333333), and 0.4666666666666667 precision, with 2 fives
-%	@20: total is 66 (avg of 3.3), and 0.55 precision, with 3 fives
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Ki_Varying_LambdaUsers_UserResults}
+  \caption[User recommendation results for user $K_{i}$ when varying $\lambda_{users}$]{User recommendation results for user $K_{i}$ when varying $\lambda_{users}$. The value of $\lambda_{tweets}$ is held constant at 0.9.}
+  \label{fig:UsersForVaryingLambdaUsers}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Ki_Varying_LambdaUsers_TweetResults}
+  \caption[Tweet recommendation results for user $K_{i}$ when varying $\lambda_{users}$]{Tweet recommendation results for user $K_{i}$ when varying $\lambda_{users}$. The value of $\lambda_{tweets}$ is held constant at 0.9.}
+  \label{fig:TweetsForVaryingLambdaUsers}
+\end{figure}
 
 
+Another test was undertaken for user $K_{j}$, which was to hold $\lambda_{users}$ constant at 0.9 while varying the tweets parameter. Though not many data points were collected, it does still suggest that keeping the value of the $\lambda_{tweets}$ parameter closer to 1 is preferable. The graph for the user recommendation results on this data is shown in Figure~\ref{fig:KjUsersForVaryingLambdaTweets}, while the graph for the user recommendation results on this data is shown in Figure~\ref{fig:KjTweetsForVaryingLambdaTweets}. The results are not as good as when the value of $\lambda_{users}$ is closer to the optimal values revealed in the other experiments in this section.
 
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Kj_Varying_LambdaTweets_UserResults}
+  \caption[User recommendation results for user $K_{j}$ when varying $\lambda_{tweets}$]{User recommendation results for user $K_{j}$ when varying $\lambda_{tweets}$. The value of $\lambda_{users}$ is held constant at 0.9.}
+  \label{fig:KjUsersForVaryingLambdaTweets}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.75]{Kj_Varying_LambdaTweets_TweetResults}
+  \caption[Tweet recommendation results for user $K_{j}$ when varying $\lambda_{tweets}$]{Tweet recommendation results for user $K_{j}$ when varying $\lambda_{tweets}$. The value of $\lambda_{users}$ is held constant at 0.9.}
+  \label{fig:KjTweetsForVaryingLambdaTweets}
+\end{figure}
 
-
-%%% Varying lambda users --- user results
-
-%Run experiments for /home/nathan/eval_results/filtered/users__lambda_tweets_045_limited.txt
-%	@5: total is 13 (avg of 2.6), and 0.4 precision, with 1 fives
-%	@10: total is 35 (avg of 3.5), and 0.7 precision, with 3 fives
-%	@15: total is 51 (avg of 3.4), and 0.6 precision, with 3 fives
-%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__lu_07_lt_06_limited.txt
-%	@5: total is 13 (avg of 2.6), and 0.4 precision, with 1 fives
-%	@10: total is 35 (avg of 3.5), and 0.7 precision, with 3 fives
-%	@15: total is 51 (avg of 3.4), and 0.6 precision, with 3 fives
-%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__07_lu_075_lt_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
-%	@20: total is 71 (avg of 3.55), and 0.65 precision, with 4 fives
-
-%09 lt
-%Run experiments for /home/nathan/eval_results/filtered/users__first_try_all_edges_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
-%	@20: total is 73 (avg of 3.65), and 0.7 precision, with 4 fives
-
-
-
-%%% Varying lambda users --- tweet results
-
-%Find out the date and stuff on this one...
-%Run experiments for /home/nathan/eval_results/filtered/users__0_3_lu_369_back_in_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 54 (avg of 3.6), and 0.6666666666666666 precision, with 4 fives
-%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__0_4_lambda_users_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 54 (avg of 3.6), and 0.6666666666666666 precision, with 4 fives
-%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__0_5_lambda_users_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
-%	@20: total is 72 (avg of 3.6), and 0.65 precision, with 4 fives
-
-%07 lu
-%Run experiments for /home/nathan/eval_results/filtered/users__first_try_all_edges_limited.txt
-%	@5: total is 15 (avg of 3.0), and 0.6 precision, with 1 fives
-%	@10: total is 37 (avg of 3.7), and 0.8 precision, with 3 fives
-%	@15: total is 56 (avg of 3.7333333333333334), and 0.7333333333333333 precision, with 4 fives
-%	@20: total is 73 (avg of 3.65), and 0.7 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__0_9_lambda_users_limited.txt
-%	@5: total is 13 (avg of 2.6), and 0.2 precision, with 0 fives
-%	@10: total is 24 (avg of 2.4), and 0.1 precision, with 0 fives
-%	@15: total is 38 (avg of 2.533333333333333), and 0.13333333333333333 precision, with 0 fives
-%	@20: total is 51 (avg of 2.55), and 0.2 precision, with 0 fives
-
-
-
-
-
-Another test was undertaken for user $K_{j}$, which was to hold $\lambda_{users}$ constant at 0.9 while varying the tweets parameter. Though not many data points were collected, it does still suggest that keeping the value of the $\lambda_{tweets}$ parameter closer to 1 is preferable. The graph for this data is shown in Figure~\ref{fig:KjVaryingLambaTweets}.
-
-
-%%% Small amount of data for varying lambda tweets, with lambda users at 0.9
-
-%user k_j
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__lambdasAt0_9_limited.txt.filtered.txt
-%	@5: total is 15 (avg of 3.0), and 0.0 precision, with 0 fives
-%	@10: total is 33 (avg of 3.3), and 0.3 precision, with 0 fives
-%	@15: total is 51 (avg of 3.4), and 0.4 precision, with 0 fives
-%	@20: total is 68 (avg of 3.4), and 0.4 precision, with 0 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__lambdasAt0_9_limited.txt
-%	@5: total is 8 (avg of 1.6), and 0.2 precision, with 0 fives
-%	@10: total is 20 (avg of 2.0), and 0.1 precision, with 0 fives
-%	@15: total is 38 (avg of 2.533333333333333), and 0.26666666666666666 precision, with 2 fives
-%	@20: total is 50 (avg of 2.5), and 0.25 precision, with 2 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_09_lt_07_limited.txt.filtered.txt
-%	@5: total is 13 (avg of 2.6), and 0.0 precision, with 0 fives
-%	@10: total is 29 (avg of 2.9), and 0.1 precision, with 0 fives
-%	@15: total is 45 (avg of 3.0), and 0.2 precision, with 0 fives
-%	@20: total is 62 (avg of 3.1), and 0.25 precision, with 0 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__lu_09_lt_07_limited.txt
-%	@5: total is 9 (avg of 1.8), and 0.2 precision, with 1 fives
-%	@10: total is 27 (avg of 2.7), and 0.4 precision, with 2 fives
-%	@15: total is 43 (avg of 2.8666666666666667), and 0.3333333333333333 precision, with 3 fives
-%	@20: total is 61 (avg of 3.05), and 0.4 precision, with 4 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/tweets__lu_09_lt_03_limited.txt.filtered.txt
-%	@5: total is 13 (avg of 2.6), and 0.0 precision, with 0 fives
-%	@10: total is 27 (avg of 2.7), and 0.1 precision, with 0 fives
-%	@15: total is 39 (avg of 2.6), and 0.06666666666666667 precision, with 0 fives
-%	@20: total is 52 (avg of 2.6), and 0.05 precision, with 0 fives
-
-%Run experiments for /home/nathan/eval_results/filtered/users__lu_09_lt_03_limited.txt
-%	@5: total is 11 (avg of 2.2), and 0.2 precision, with 1 fives
-%	@10: total is 28 (avg of 2.8), and 0.3 precision, with 2 fives
-%	@15: total is 43 (avg of 2.8666666666666667), and 0.26666666666666666 precision, with 3 fives
-%	@20: total is 49 (avg of 2.45), and 0.2 precision, with 3 fives
-
-
-
-
-A final test was undertaken to move both $\lambda$ parameters to 1, thereby removing much of the impact of the initial scores. The baseline results for this configuration were terrible, with the precision for both tweets and users being 0.2, the average scores being between 2.5 and 2.75, and no scores of 5 for any of the users. The results for this section are included as part of the experiments on varying the types of edge included in the algorithm in Section~\ref{sec:VaryingEdgeTypes}.
-
+A final experiment on the lambda parameters was undertaken which moved both $\lambda$ parameters to 1, thereby removing much of the impact of the initial scores. The results for this configuration were terrible, with the precision for both tweets and users being 0.2, the average scores being between 2.5 and 2.75, and no scores of 5 for any of the user recommendations. The results for this experiment are included as part of the experiments on varying the types of edge included in the algorithm described in Section~\ref{sec:VaryingEdgeTypes}.
 
 
 
