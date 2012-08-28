@@ -59,7 +59,7 @@ These filtered tweets were then presented to the user in a random order and each
 \end{table}
 
 
-Recommending users proceeded in a largely similar manner. A surprising number of the recommended users either no longer appear as users or have set their Twitter feeds to be private, preventing effective evaluation, so the option for the users to rate the user as not available was added. These users were then filtered out of the results when calculating precision.
+Recommending users proceeded in a largely similar manner. A surprising number of the recommended users either no longer appear as users or have set their Twitter feeds to be private, preventing effective evaluation, so the option for the users to rate the user as ``not available'' was added. These users were then filtered out of the results when calculating precision.
 
 For each recommended user, the distinguished user under study was presented with a link to their Twitter page so that their profile and recent tweets could be viewed. Each user to be ranked was presented in random order. The users under study were then asked to rank the recommended users according the scale of Table~\ref{tab:UserRankingScoresForUsers}, which is largely similar to the scale for ranking tweets. The results of this ranking were then used in the same way to determine precision scores by considering users scored as either 4 or 5 to be relevant users.
 
@@ -106,7 +106,7 @@ Much of the research on link prediction in social networks focuses on predicting
 
 Thus, one evaluation method used was to compare the users recommended for each distinguished user to the set of actual followees of that person in the present social network. For the two known users it was also possible to include users who were included in the recommendations whom the distinguished user may once have followed but no longer does. The number of recommended users likely to be in the set of present-day followees is extremely small given that most users follow a small set of people, but by comparing the number of users in the top 25 recommended users who overlap with the present-day followee list to the probability of a random user appearing in that list it is possible to demonstrate that the recommendations have value.
 
-Calculating the probability of a random user from the data being amongst the present-day followees requires a major assumption: that the network today is the same size and has the same users as the network of the dataset. This is necessary because there simply is not data available for the relevant network information at any point except the dataset used here and the present day. This assumption is obviously not true, but it means that the actual probability is smaller than the calculated probability, so the calculated probability can be taken as an upper boundary. Using this assumption, it is possible to calculate the approximate probability that a random user would be a present-day followee of the distinguished user with the following formula:
+Calculating the probability of a random user from the data being amongst the present-day followees requires a major assumption: that the network today is the same size and has the same users as the network of the dataset. This is necessary because there simply is not data available for the relevant network information at any point except the dataset used here and the present day. This assumption is obviously not true, but it means that the actual probability is smaller than the calculated probability, so the calculated probability can be taken as an upper bound. Using this assumption, it is possible to calculate the approximate probability that a random user would be a present-day followee of the distinguished user with the following formula:
 
 
 \begin{center}
@@ -116,7 +116,11 @@ Calculating the probability of a random user from the data being amongst the pre
 \end{center}
 
 
-User $K_{i}$ has 43 followees in the dataset used here compared to 443 today and 72 followers in the dataset used here compared to 791 today. User $K_{j}$ has 105 followees in the dataset compared to 505 today and 87 followers in the dataset used here compared to 495 today. User $U$ has 279 followees in the dataset compared to 442 today to go along with 3,720 followers in the dataset compared to 7,191 today. Given these numbers, the probability that a random user would be a present day followee of each user is listed in Table~\ref{tab:RandomUserFolloweeProb}. These probabilities can then be compared to the number of users recommended by the algorithm who the user currently follows in order to establish the value of the algorithm.
+User $K_{i}$ has 43 followees in the dataset used here compared to 443 today and 72 followers in the dataset used here compared to 791 today. In the set of tweets studied here, this user authored 2 tweets, one of which was a retweet. He also had more than 6,000 edges emanating from his user vertex. Most of these edges were content edges since one of this user's tweets mentioned a very popular hashtag on this particular day.
+
+User $K_{j}$ has 105 followees in the dataset compared to 505 today and 87 followers in the dataset used here compared to 495 today. He also had 2 tweets, one of them a retweet and one of them an at-reply. He was connected to tweets by a mere 57 edges.
+
+User $U$ has 279 followees in the dataset compared to 442 today to go along with 3,720 followers in the dataset compared to 7,191 today. Given these numbers, the probability that a random user would be a present day followee of each user is listed in Table~\ref{tab:RandomUserFolloweeProb}. These probabilities can then be compared to the number of users recommended by the algorithm who the user currently follows in order to establish the value of the algorithm.
 
 \begin{table}
 \centering
