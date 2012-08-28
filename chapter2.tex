@@ -103,11 +103,11 @@ The private nature of this data made it unsuitable for study in this dissertatio
 
 \subsubsection{History}
 
-Created in 2006, Twitter is a social network noted for the brevity of its content. The basic concept is simple: users provide updates on what they are doing or thinking in up to 140 characters. The basic interface has changed very little since its inception and the feature set is still very similar to its beginnings, in marked contrast to the large number of features that are integrated into Facebook.
+Created in 2006, Twitter is a social network noted for the brevity of its content. The basic concept is simple: users provide status updates on what they are doing or thinking in up to 140 characters. The basic interface has changed very little since its inception and the feature set is still very similar to its beginnings, in marked contrast to the large number of features that are integrated into Facebook.
 
 The original intent was that users could update their status and receive status updates from friends using SMS messages from their mobile phones, and thus the length of any given Twitter message was limited to be smaller than the maximum size of an SMS message, 160 characters.
 
-The nature of the network began to change as smartphones---mobile phones capable of running applications and communicating with the internet---became ubiquitous following the release of Apple's first iPhone in 2007. Twitter provides an extensive Application Programming Interface (API), which has allowed application developers to create rich and visually pleasing interfaces to the service that have helped boost its popularity by making it even easier to use. As smartphones grew in popularity the need for and popularity of status updates via SMS faded, though the 140 character limit has remained.
+The nature of the network began to change as smartphones---mobile phones capable of running applications and communicating with the internet---became ubiquitous following the release of Apple's first iPhone in 2007. Twitter provides an extensive Application Programming Interface (API) which has allowed application developers to create rich and visually pleasing interfaces to the service that have helped boost its popularity by making it even easier to use. As smartphones grew in popularity the need for and popularity of status updates via SMS faded, though the 140 character limit has remained.
 
 Today, Twitter has over 140 million active users worldwide, and those users produce hundreds of millions of status updates each day. As a result, numerous attempts have been made to make sense of this vast source of public data about the feelings and activities of millions of people around the world. Research into this area is discussed in greater depth in Section~\ref{sec:InfoGatheringResearch}.
 
@@ -143,19 +143,18 @@ Twitter collects these hashtags and provides a list of topics that are currently
 
 \paragraph{Mentions and @replies}
 
-Mentions are another important feature of Twitter, and like hashtags, they also started out as a convention amongst users before being adopted as a native feature by Twitter\cite{Java2007}. Mentions are simply a way of directing a tweet to the attention of a particular person. This is accomplished by pre-pending an @ symbol to their user name and including it in the tweet. Thus, to mention Bob, Alice would type `@bob' in her tweet. Mentions are collected by Twitter and can be seen even if the user being mentioned, henceforth referred to as the \emph{mentionee}, does not follow the mentioner. These mentions do not appear on a person's main Twitter feed, but are instead accessed from a special mentions page. If the username following the `@' character does not exist, the link is still highlighted but is not valid.
+Mentions are another important feature of Twitter, and like hashtags, they also started out as a convention amongst users before being adopted as a native feature by Twitter \cite{Java2007}. Mentions are simply a way of directing a tweet to the attention of a particular person. This is accomplished by pre-pending an @ symbol to their user name and including it in the tweet. Thus, to mention Bob, Alice would type `@bob' in her tweet. Mentions are collected by Twitter and can be seen even if the user being mentioned, henceforth referred to as the \emph{mentionee}, does not follow the mentioner. These mentions do not appear on a person's main Twitter feed, but are instead accessed from a special mentions page. If the username following the `@' character does not exist, the link is still highlighted but is not valid.
 
 
 One distinction that is made is between an @reply and a mention. An @reply is the colloquial term given to mentions where the @username syntax appears at the beginning of the tweet as in the following sample tweet from Alice: ``@bob Hope to meet you after the presentation today!''. Because this is an @reply, this tweet would not show up in the main Twitter streams of Alice's followers (unless they also follow Bob). Since Bob doesn't follow Alice, this @reply also would not show up in his Twitter stream, only in his mentions. In contrast, a mention is a tweet that contains the @username syntax anywhere except at the beginning of the tweet, such as in this example tweet from Alice: ``Hoping to meet @bob after the presentation today!''. These tweets are visible on the Twitter streams of Alice's followers just like any other tweet, but are also collected for Bob along with all other tweets that mention him. Figure~\ref{fig:mention_reply} is a screenshot of a tweet which includes both a mention and an @reply.
 
-\begin{center}
+
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{mention_reply_example_figure}
   \caption[Example of a Twitter mention and @reply]{This tweet is an @reply to a user named `katiewardy' but also contains a mention of a user named `TeamGB', the official Twitter page for the United Kingdom's Olympic Team}
 \label{fig:mention_reply}
 \end{figure}
-\end{center}
 
 
 
@@ -163,14 +162,12 @@ One distinction that is made is between an @reply and a mention. An @reply is th
 
 The final major feature of Twitter is yet another syntactic convention that was developed naturally by users and then given native support by Twitter: the retweet. A retweet is when a user repeats a tweet by another user to pass it along to their own followers, analogous to the re-sharing feature on Facebook. The common syntax is `RT @username [original tweet]', with the RT standing for retweet. The retweet is often sent along with a comment from the person retweeting about how they feel about what was said. While no specific convention exists for where to place this comment, two conventions often seen are to place a comment before the RT and to place it after the original tweet with some indication of the divide between the original tweet and the comment such as `//' or `...'. Figure~\ref{fig:retweet_hashtag} contains a screenshot of a tweet which includes a retweet which follows the convention of placing a comment before the RT.
 
-\begin{center}
 \begin{figure}
   \centering
   \includegraphics[width=1\textwidth]{retweet_hashtag_example_figure}
   \caption[Example of a Twitter retweet and hashtag]{An example of a Twitter retweet. Here, the resort has forwarded the positive tweet by user `eliseontravel' along with a comment of `We agree!' to their own followers. This tweet is also an example of a tweet containing a hashtag which was used in the original tweet: `\#Telluride'. The 'bit.ly/MUqOLf' at the end is a shortened link to an external website.}
 \label{fig:retweet_hashtag}
 \end{figure}
-\end{center}
 
 
 \subsubsection{Content Recommendation}
@@ -179,7 +176,7 @@ All of these features of the Twitter network are useful in content recommendatio
 
 In fact, while studying Twitter it is actually a case of having far too much data to deal with easily than of not having enough data. Even though each tweet is no more than 140 characters, if the assumption is made that 100 million tweets are produced on a particular day (a very low estimate with today's usage), then that single day will contain roughly 14GB of data. Fortunately, previous researchers such as \cite{Kwak2010} and \cite{Choudhury2010} have already created some parsed versions of the data that can be used. More recently, a track of the Text Retrieval Conference (TREC)\footnote{http://trec.nist.gov/tracks.html} has been opened with regards to microblog research along with an enormous collection of tweets from 2011. Though these datasets are all extremely large and thus useful for research, they still represent only a small fraction of the total data present.
 
-This vast amount of readily available data meant that Twitter was by far the best option to study in this project, even though most of the concepts would be simple to apply to other social networks given the data since most of them have their major features in common with Twitter. As such, the remainder of this chapter will focus on Twitter since it is the object of study for this dissertation.
+This vast amount of readily available data meant that Twitter was by far the best option to study in this project, even though most of the concepts would be simple to apply to other social networks if data were available for them since most of them have their major features in common with Twitter. As such, the remainder of this chapter will focus on Twitter since it is the object of study for this dissertation.
 
 
 \section{Existing Research on Social Networks}
@@ -244,7 +241,7 @@ Still, PageRank has been used by other studies, such as in \cite{Weng2010}. They
 
 A hybrid approach utilizing both network and content information was taken by \cite{Armentano2011}. The goal of the research was to provide user recommendations in some sort of a ranked order. A network based approach was taken first in order to  discover potentially interesting users. From that unordered list of potentially interesting users a ranked list is created by comparing the users based on the content that they produce to a reference document of what the user is interested in. Two strategies specifically used for building the user profile are the user's own tweets and the tweets of the user's followees.
 
-Another piece of work focused on recommending users is presented in, \cite{Hannon2010}, which recommends users based purely on content. As with a number of other approaches, the major choice explored is what to use as the reference content to which other users are compared. Several different strategies are compared, some of them overlapping with those examined by \cite{Armentano2011}. The tweets of the user, their followees, and their followers were all considered, as were the lists of users' followers and followees. Additionally, combinations of these methods were employed in a hybridized approach. For each means of building them, the user profile documents were compared as TF-IDF valued word vectors (see Section~\ref{sec:ContentScoringMethod} for more details on TF-IDF weighting). The hybrid approaches performed the best, generally speaking. 
+Another piece of work focused on recommending users is presented in \cite{Hannon2010}, which recommends users based purely on content. As with a number of other approaches, the major choice explored is what to use as the reference content to which other users are compared. Several different strategies are compared, some of them overlapping with those examined by \cite{Armentano2011}. The tweets of the user, their followees, and their followers were all considered, as were the lists of users' followers and followees. Additionally, combinations of these methods were employed in a hybridized approach. For each means of building them, the user profile documents were compared as TF-IDF valued word vectors (see Section~\ref{sec:ContentScoringMethod} for more details on TF-IDF weighting). The hybrid approaches performed the best, generally speaking. 
 
 \subsubsection{Recommending Content}
 
